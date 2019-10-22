@@ -111,7 +111,7 @@ def write_file(output_location,image_name,centers_list,bbox_list):
 
             if len(centers_list) != len(bbox_list):
                 print("Warning: Skipped image, n centers not equal to n animals")
-                pass
+                continue
 
             file.write("1" +  ' ' + str(wh[0]) + ' ' + str(wh[1]) + ' ' + str(xy[0]) + ' ' + str(xy[1]))
             file.write("\n")
