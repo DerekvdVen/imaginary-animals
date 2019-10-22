@@ -60,8 +60,13 @@ def mask_seg(imagelocation):
     
     return animals, mask
 
-def smooth_animals(animals, sigma):
+def smooth_animals(animals, sigma, size):
     pylab.jet()
+    
+    sizes = mh.labeled.labeled_size(animals)
+    too_small = np.where(sizes < size)
+    animals = mh.labeled.remove_regions(animals, too_small)
+    
     animalsf = mh.gaussian_filter(animals, sigma)
     animalsf_I = animalsf.astype('uint8')
     T = mh.thresholding.otsu(animalsf_I)
@@ -70,8 +75,16 @@ def smooth_animals(animals, sigma):
     
     return animalsf, T
 
-def count_animals(animalsf, T):
-    labeled,nr_objects = mh.label(animalsf > T)
+def count_animals(animals_smooth, T,min_size = 1):
+    labeled, nr_objects = mh.label(animals_smooth > T)
+    
+    print(nr_objects)
+    #sizes = mh.labeled.labeled_size(labeled)
+    #too_small = np.where(sizes < min_size)
+    #labeled_filtered = mh.labeled.remove_regions(labeled, too_small)
+    
+    #labeled, nr_objects = mh.label(labeled_filtered)
+    
     print("This image contains " , nr_objects, "animals")
     pylab.imshow(labeled)
     pylab.jet()
@@ -79,20 +92,35 @@ def count_animals(animalsf, T):
     
     return labeled, nr_objects
 
-def get_centers(animalsf, width = 512, height = 512):
-    rmax = mh.regmax(animalsf)
+def get_centers(animals_smooth, clean_distance, width = 512, height = 512):
+    rmax = mh.regmax(animals_smooth)
     centers, nr_centers = mh.label(rmax)
     print("nr centers", nr_centers)
-    centers_list = []
     
+    pylab.imshow(animals_smooth)
+    pylab.jet()
+    pylab.show()
+    
+    centers_list = []
+    centers_list_clean = []
     for x in range(nr_centers):
         location = np.where(centers == (x+1))
-        #print(float(location[1])/width , float(location[0])/height)
-        x_location = float(location[1]/width)
-        y_location = float(location[0]/height)
+        x_location = float(location[1])/width
+        y_location = float(location[0])/height
         centers_list.append((x_location,y_location))
-        
-    return centers_list
+    
+    for x in range(0,len(centers_list)-1):        
+        if abs(centers_list[x][0] - centers_list[x+1][0]) < clean_distance/width and abs(centers_list[x][1]-centers_list[x+1][1]) < clean_distance/height:
+            print("Multiple centers found, removing centers close together")
+            print(centers_list[x][0]*width, centers_list[x+1][0]*width,"and",centers_list[x][1]*height,centers_list[x+1][1]*height)
+        else:
+            centers_list_clean.append(centers_list[x])
+
+    centers_list_clean.append(centers_list[-1])
+    
+    print("nr centers", len(centers_list_clean))
+    print(centers_list_clean)
+    return centers_list_clean
 
 def get_bboxes(labeled, width = 512, height = 512):
     bboxes = mh.labeled.bbox(labeled)
