@@ -133,13 +133,15 @@ def get_bboxes(labeled, width = 512, height = 512):
     return(bbox_list)
 
 def write_file(output_location,image_name,centers_list,bbox_list):
+    bad_image_list = []
     output_file = output_location + image_name + ".txt"
     with open(output_file, "w") as file:
         for wh, xy in zip(centers_list, bbox_list):
-
             if len(centers_list) != len(bbox_list):
                 print("Warning: Skipped image, n centers not equal to n animals")
-                continue
+                bad_image_list.append(image_name)
+                break
 
             file.write("1" +  ' ' + str(wh[0]) + ' ' + str(wh[1]) + ' ' + str(xy[0]) + ' ' + str(xy[1]))
             file.write("\n")
+    return(bad_image_list)
