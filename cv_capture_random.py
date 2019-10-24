@@ -71,10 +71,10 @@ while counter < 1000:
 
         for i, response in enumerate(responses):
             print("Type %d, size %d, pos %s" % (response.image_type, len(response.image_data_uint8), pprint.pformat(response.camera_position)))
-            airsim.write_file(os.path.normpath(os.path.join(tmp_dir,  "IMG" + str(counter) + '_' + str(x) + ',' + str(y) + '_' + '.png')), response.image_data_uint8)
+            airsim.write_file(os.path.normpath(os.path.join(tmp_dir,  "IMG" + str(counter) + '_' + str(x) + ',' + str(y) + '.png')), response.image_data_uint8)
         for i, response in enumerate(responses_s):
             print("Type %d, size %d, pos %s" % (response.image_type, len(response.image_data_uint8), pprint.pformat(response.camera_position)))
-            airsim.write_file(os.path.normpath(os.path.join(tmp_dir2,  "IMG" + str(counter) + '_' + str(x) + ',' + str(y) + '_' + '.png')), response.image_data_uint8)
+            airsim.write_file(os.path.normpath(os.path.join(tmp_dir2,  "IMG" + str(counter) + '_' + str(x) + ',' + str(y) + '.png')), response.image_data_uint8)
             
         pose = client.simGetVehiclePose()
         #pp.pprint(pose)

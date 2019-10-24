@@ -99,9 +99,16 @@ def count_animals(animals_smooth, T,min_size = 1):
     
     # plot if animals present
     if nr_objects != 0:
+        print("Labeled blobs")
         pylab.imshow(labeled)
         pylab.jet()
         pylab.show()
+        
+        print("Smoothed animals")
+        pylab.imshow(animals_smooth)
+        pylab.jet()
+        pylab.show()
+        
 
     return labeled, nr_objects
 
@@ -109,11 +116,12 @@ def get_centers_through_borders(labeled,nr_objects,width = 512, height = 512):
     centers_list = []
     for x in range(nr_objects):
         
-        location = np.where(mh.borders(labeled == x))
+        location = np.where(mh.borders(labeled == x+1))
         x_location = np.mean(location[1])/width
         y_location = np.mean(location[0])/height
         centers_list.append((x_location,y_location))
     print(centers_list)
+    print("\n")
     return(centers_list)
 
 def get_bboxes(labeled, width = 512, height = 512):
@@ -126,18 +134,13 @@ def get_bboxes(labeled, width = 512, height = 512):
     return(bbox_list)
 
 def write_file(output_location,image_name,centers_list,bbox_list):
-    bad_image_list1 = []
     output_file = output_location + image_name + ".txt"
+    
     with open(output_file, "w") as file:
+        
         for wh, xy in zip(centers_list, bbox_list):
-            if len(centers_list) != len(bbox_list):
-                print("Warning: Skipped image, n centers not equal to n animals")
-                bad_image_list1.append(image_name)
-                break
-
             file.write("1" +  ' ' + str(wh[0]) + ' ' + str(wh[1]) + ' ' + str(xy[0]) + ' ' + str(xy[1]))
             file.write("\n")
-    return(bad_image_list1)
 
 # old stuff
 '''
