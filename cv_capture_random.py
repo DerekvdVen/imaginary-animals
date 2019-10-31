@@ -10,6 +10,11 @@ import time
 import random
 import itertools
 
+# Variables #
+date = "2019-11"
+area_x = 500
+area_y = 500
+
 pp = pprint.PrettyPrinter(indent=4)
 
 client = airsim.VehicleClient()
@@ -21,17 +26,21 @@ for camera_id in range(2):
 
 airsim.wait_key('Press any key to get images')
 #tmp_dir = os.path.join(tempfile.gettempdir(), "airsim_drone")
-tmp_dir = "C:/Users/Derek/Documents/Thesis_python/Data/images/2019-10"
-tmp_dir2 = "C:/Users/Derek/Documents/Thesis_python/Data/semantic/2019-10"
+tmp_dir = "C:/Users/Derek/Documents/Thesis_python/Data/images/" + date
+tmp_dir2 = "C:/Users/Derek/Documents/Thesis_python/Data/semantic/" + date
 print ("Saving images to %s" % tmp_dir)
 
-#try:
-#    for n in range(2):
-#        os.makedirs(os.path.join(tmp_dir, str(n)))
-#except OSError:
-#    if not os.path.isdir(tmp_dir):
-#        raise
+try:
+    os.makedirs(os.path.join(tmp_dir))
+except OSError:
+    if not os.path.isdir(tmp_dir):
+        raise
 
+try:
+    os.makedirs(os.path.join(tmp_dir2))
+except OSError:
+    if not os.path.isdir(tmp_dir2):
+        raise
 #client.simSetTimeOfDay(True, start_datetime = "2018-10-14 {}:12:00")
 Z = -(int(input("how high? (m)")))
 S = int(input("How big is the stepsize?"))
@@ -39,8 +48,8 @@ px = 0
 py = 0
 counter = 0
 while counter < 1000:
-    x1 = random.randrange(-1500,1500,S)
-    y1 = random.randrange(-1500,1500,S)
+    x1 = random.randrange(-area_x,area_x,S)
+    y1 = random.randrange(-area_y,area_y,S)
     fill_value = x1
     distance_y = abs(y1 - py)
     distance_x = abs(x1 - px)

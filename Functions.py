@@ -1,3 +1,5 @@
+# Functions for Main.py from imaginary-animals
+
 import rasterio
 import rasterio.plot
 import pyproj
@@ -10,10 +12,20 @@ import pylab
 import mahotas as mh
 import cv2
 
+
+
 def create_dirs():
+    
+    
+    # create_dirs creates directories for storing data
+    # input: none
+    # output: none
+    
+    
     path_images = "../Data/images/2019-10"
     path_labels = "../Data/labels/2019-10"
     path_semantic = "../Data/semantic/2019-10"
+    
     try:
         os.makedirs(path_images)
         os.makedirs(path_labels)
@@ -27,27 +39,43 @@ def create_dirs():
         print ("Successfully created the directory %s " % path_labels)
         print ("Successfully created the directory %s " % path_semantic)
         
+        
+        
 def check_sky(input_image_s):
+    
+    
+    # check_sky checks if the image contains sky pixels, i.e. if the camera is taking pictures below ground, and deletes them if present
+    # input: an input image 
+    # output: True (sky) or False (no sky)
+    
+    # Read image and set sky mask
     img = cv2.imread(input_image_s)
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     hsv_color_sky1 = np.asarray([59, 177, 180])   # sky
     hsv_color_sky2 = np.asarray([61, 179, 182])   # 
-
     check_sky = cv2.inRange(img_hsv, hsv_color_sky1, hsv_color_sky2)
+    
+    # Return true or false based on sky presence
     if 255 in check_sky:
         print("Warning, picture contains sky, passing")
         return True
     else:
         return False
 
+    
+    
 def mask_seg(imagelocation):
+    
+    
+    # mask_seg masks ground, vegetation and water pixels so we only capture the animals
+    # input: location of image to be masked
+    # output: animal blobs array, and mask array
+    
     
     # Convert to HSV
     img = cv2.imread(imagelocation)
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     
-    # Test if sky is in image
-
     # Set exclusion parameters for ground, vegetation and water
     hsv_color_ground1 = np.asarray([50, 210, 224])   # exclude ground
     hsv_color_ground2 = np.asarray([52, 212, 226])   # 
@@ -62,42 +90,53 @@ def mask_seg(imagelocation):
     mask_ground = cv2.inRange(img_hsv, hsv_color_ground1, hsv_color_ground2)
     mask_veg = cv2.inRange(img_hsv, hsv_color_veg1, hsv_color_veg2)
     mask_water = cv2.inRange(img_hsv, hsv_color_water1, hsv_color_water2)
-
     mask = mask_ground + mask_veg + mask_water
 
-    # Perform mask on img_hsv
+    # Perform mask on img_hsv, and get animals array
     target = cv2.bitwise_and(img_hsv,img_hsv, mask=mask)
-
-    # Display image
-    #plt.imshow(target)   # this colormap will display in black / white
-    #plt.show()
     animals = cv2.bitwise_not(mask)
     
     return animals, mask
 
-def smooth_animals(animals, sigma, size):
-    pylab.jet()
+
+
+def smooth_animals(animals, sigma, minimal_size):
     
+    
+    # smooth_animals smoothes the animal blobs and deletes blobs smaller than the minimal size ones
+    # input: animal blob array, sigma (which is the standard deviation for Gaussian kernel), minimal_size
+    # output: animalsf: smoothed animal blobs array
+    
+    
+    # remove small sizes
     sizes = mh.labeled.labeled_size(animals)
-    too_small = np.where(sizes < size)
+    too_small = np.where(sizes < minimal_size)
     animals = mh.labeled.remove_regions(animals, too_small)
     
-    animalsf = mh.gaussian_filter(animals, sigma)
-    animalsf_I = animalsf.astype('uint8')
-    T = mh.thresholding.otsu(animalsf_I)
-    #pylab.imshow(animalsf)
-    #pylab.show()
+    # Apply gaussian filter
+    animals_smooth = mh.gaussian_filter(animals, sigma)
     
-    return animalsf, T
+    return animals_smooth
 
-def count_animals(animals_smooth, T,min_size = 1):
+
+
+def count_animals(animals_smooth):
+       
+        
+    # count_animals thresholds the smoothed gaussian blobs and then labels and counts them. Also makes plots to show the animals.
+    # input: animals_smooth: smoothed animal blobs array
+    # output: array with labels, and a number of objects integer
     
-    # Smooth animals
+    
+    # Find Otsu threshold T. This is neccessary because amimals_smooth creates a gaussian distribution which is square when labeled. We don't want these squares to overlap when counting, so we threshold them using the Otsu threshold, which minimizes the intra-class variance.
+    animals_smooth_I = animals_smooth.astype('uint8')
+    T = mh.thresholding.otsu(animals_smooth_I)
+    
+    # Label animals and print the amount
     labeled, nr_objects = mh.label(animals_smooth > T)
-    
     print("This image contains" , nr_objects, "animals")
     
-    # plot if animals present
+    # Plot if animals present
     if nr_objects != 0:
         print("Labeled blobs")
         pylab.imshow(labeled)
@@ -109,38 +148,77 @@ def count_animals(animals_smooth, T,min_size = 1):
         pylab.jet()
         pylab.show()
         
-
     return labeled, nr_objects
 
-def get_centers_through_borders(labeled,nr_objects,width = 512, height = 512):
+
+
+def get_centers_through_borders(labeled, nr_objects, width = 512, height = 512):
+    
+    
+    # get_centers_through_borders creates a list and writes the centers of the labeled blobs to it
+    # input: labeled: labeled animals array, nr_objects in the image, width and height of the image
+    # output: list of centers in image
+    
+    
+    # Create centers_list list for centers
     centers_list = []
+    
+    # For amount of animals in picture, find the borders of every animal, and take the mean value of the x and y border values, then append to list
     for x in range(nr_objects):
         
         location = np.where(mh.borders(labeled == x+1))
         x_location = np.mean(location[1])/width
         y_location = np.mean(location[0])/height
         centers_list.append((x_location,y_location))
-    print(centers_list)
-    print("\n")
+    
+    # Print the center locations list
+    print("center locations:" ,  str(centers_list) , "\n")
+    
     return(centers_list)
 
+
+
 def get_bboxes(labeled, width = 512, height = 512):
+    
+    
+    # get_bboxes creates a list and writes the bouning boxes of the animals of the image to it
+    # input: labeled: labeled animals array, width and height of the image
+    # output: bbox_list: bounding box list
+    
+    
+    # Calculate bboxes with bbox function and make a list to store the coordinates in
     bboxes = mh.labeled.bbox(labeled)
     bbox_list = []
     
+    # Store coordinates in the bbox list
     for box in bboxes[1:]:
         bbox_list.append((abs(box[2] - box[3])/width, abs(box[0] - box[1])/height))
-        
+    
+    # Print the bbox list
+    print("bboxes:", str(bbox_list), "\n")
+
     return(bbox_list)
 
+
+
 def write_file(output_location,image_name,centers_list,bbox_list):
+    
+    
+    # write_file writes the image annotation data to a directory
+    # input: output_location: place to save, image_name: the image name, centers list and bbox list created earlier
+    # output: 
+    
+    
+    # Create output_file name
     output_file = output_location + image_name + ".txt"
     
+    # Open the output_file and write data 
     with open(output_file, "w") as file:
         
         for wh, xy in zip(centers_list, bbox_list):
             file.write("1" +  ' ' + str(wh[0]) + ' ' + str(wh[1]) + ' ' + str(xy[0]) + ' ' + str(xy[1]))
             file.write("\n")
+        print("Proper animals found: writing file", "\n")    
 
 # old stuff
 '''
