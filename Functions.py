@@ -109,7 +109,7 @@ def mask_seg(imagelocation):
 
 
 
-def smooth_animals(animals, sigma, minimal_size):
+def smooth_animals(animals, sigma):
     
     
     # smooth_animals smoothes the animal blobs and deletes blobs smaller than the minimal size ones
@@ -117,10 +117,7 @@ def smooth_animals(animals, sigma, minimal_size):
     # output: animalsf: smoothed animal blobs array
     
     
-    # remove small sizes
-    sizes = mh.labeled.labeled_size(animals)
-    too_small = np.where(sizes < minimal_size)
-    animals = mh.labeled.remove_regions(animals, too_small)
+
     
     # Apply gaussian filter
     animals_smooth = mh.gaussian_filter(animals, sigma)
@@ -129,7 +126,7 @@ def smooth_animals(animals, sigma, minimal_size):
 
 
 
-def count_animals(animals_smooth,plus_factor):
+def count_animals(animals_smooth,minimal_size):
        
         
     # count_animals thresholds the smoothed gaussian blobs and then labels and counts them. Also makes plots to show the animals.
@@ -143,17 +140,17 @@ def count_animals(animals_smooth,plus_factor):
 
     # Label animals and print the amount
     labeled, nr_objects = mh.label(animals_smooth > T)
+    print("This image contains" , nr_objects, "animals, including tiny blobs")
     
-    # If making the blobs smaller increases the amount of objects, use slightly smaller blobs 
-    check = 0
-    labeled_plus, nr_objects_plus = mh.label(animals_smooth > T + plus_factor)
-    if nr_objects != nr_objects_plus:
-        print("animals overlap, using slightly smaller blobs")
-        labeled = labeled_plus
-        nr_objects = nr_objects_plus
-        check = True
+    # remove small sizes
+    sizes = mh.labeled.labeled_size(labeled)
+    too_small = np.where(sizes < minimal_size)
+    labeled = mh.labeled.remove_regions(labeled, too_small)
     
-    print("This image contains" , nr_objects, "animals")
+    # Relabel after removing small blobs
+    labeled, nr_objects = mh.label(labeled)
+    
+    print("This image contains" , nr_objects, "animals, excluding tiny blobs")
     
     # Plot if animals present
     if nr_objects != 0:
@@ -167,7 +164,7 @@ def count_animals(animals_smooth,plus_factor):
         pylab.jet()
         pylab.show()
         
-    return labeled, nr_objects, check
+    return labeled, nr_objects
 
 def plot_image(image):
     
