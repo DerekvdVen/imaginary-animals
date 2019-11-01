@@ -14,7 +14,7 @@ import cv2
 
 
 
-def create_dirs():
+def create_dirs(date):
     
     
     # create_dirs creates directories for storing data
@@ -22,22 +22,31 @@ def create_dirs():
     # output: none
     
     
-    path_images = "../Data/images/2019-10"
-    path_labels = "../Data/labels/2019-10"
-    path_semantic = "../Data/semantic/2019-10"
+    path_images = "../Data/images/" + date
+    path_labels = "../Data/labels/" + date
+    path_semantic = "../Data/semantic/" + date
     
     try:
         os.makedirs(path_images)
-        os.makedirs(path_labels)
-        os.makedirs(path_semantic)        
     except OSError:
         print ("Creation of the directory %s failed" % path_images)
-        print ("Creation of the directory %s failed" % path_labels)
-        print ("Creation of the directory %s failed" % path_semantic)
     else:
         print ("Successfully created the directory %s " % path_images)
+
+    try:
+        os.makedirs(path_labels)   
+    except OSError:
+        print ("Creation of the directory %s failed" % path_labels)
+    else:
         print ("Successfully created the directory %s " % path_labels)
-        print ("Successfully created the directory %s " % path_semantic)
+        
+    try:
+        os.makedirs(path_images)     
+    except OSError:
+        print ("Creation of the directory %s failed" % path_images)
+    else:
+        print ("Successfully created the directory %s " % path_images)
+
         
         
         
@@ -150,8 +159,23 @@ def count_animals(animals_smooth):
         
     return labeled, nr_objects
 
+def plot_image(image):
+    
+    
+    # plot_image plots an input image
+    # input: image in file location
+    # output: none
+    
+    
+    # Convert from BGR to RGB and plot
+    print("Real image")
+    img = cv2.imread(image)
+    RGB_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    pylab.imshow(RGB_img)
+    pylab.show()
 
-
+    
+    
 def get_centers_through_borders(labeled, nr_objects, width = 512, height = 512):
     
     
