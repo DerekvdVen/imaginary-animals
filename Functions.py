@@ -129,20 +129,30 @@ def smooth_animals(animals, sigma, minimal_size):
 
 
 
-def count_animals(animals_smooth):
+def count_animals(animals_smooth,plus_factor):
        
         
     # count_animals thresholds the smoothed gaussian blobs and then labels and counts them. Also makes plots to show the animals.
-    # input: animals_smooth: smoothed animal blobs array
+    # input: animals_smooth: smoothed animal blobs array, plus_factor: modifies otsu threshold to make the blobs a bit smaller
     # output: array with labels, and a number of objects integer
     
     
     # Find Otsu threshold T. This is neccessary because amimals_smooth creates a gaussian distribution which is square when labeled. We don't want these squares to overlap when counting, so we threshold them using the Otsu threshold, which minimizes the intra-class variance.
     animals_smooth_I = animals_smooth.astype('uint8')
     T = mh.thresholding.otsu(animals_smooth_I)
-    
+
     # Label animals and print the amount
     labeled, nr_objects = mh.label(animals_smooth > T)
+    
+    # If making the blobs smaller increases the amount of objects, use slightly smaller blobs 
+    check = 0
+    labeled_plus, nr_objects_plus = mh.label(animals_smooth > T + plus_factor)
+    if nr_objects != nr_objects_plus:
+        print("animals overlap, using slightly smaller blobs")
+        labeled = labeled_plus
+        nr_objects = nr_objects_plus
+        check = True
+    
     print("This image contains" , nr_objects, "animals")
     
     # Plot if animals present
@@ -157,7 +167,7 @@ def count_animals(animals_smooth):
         pylab.jet()
         pylab.show()
         
-    return labeled, nr_objects
+    return labeled, nr_objects, check
 
 def plot_image(image):
     
@@ -220,7 +230,7 @@ def get_bboxes(labeled, width = 512, height = 512):
     
     # Print the bbox list
     print("bboxes:", str(bbox_list), "\n")
-
+    
     return(bbox_list)
 
 
