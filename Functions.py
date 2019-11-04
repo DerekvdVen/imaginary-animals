@@ -112,15 +112,14 @@ def mask_seg(imagelocation):
 def smooth_animals(animals, sigma):
     
     
-    # smooth_animals smoothes the animal blobs and deletes blobs smaller than the minimal size ones
-    # input: animal blob array, sigma (which is the standard deviation for Gaussian kernel), minimal_size
+    # smooth_animals smoothes the animal blobs
+    # input: animal blob array, sigma (which is the standard deviation for Gaussian kernel)
     # output: animalsf: smoothed animal blobs array
     
-    
 
-    
     # Apply gaussian filter
     animals_smooth = mh.gaussian_filter(animals, sigma)
+    
     
     return animals_smooth
 
@@ -141,8 +140,9 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
     # Make a plot to compare effects of erosion and dilation
     labeled_test, nr_objects_test = mh.label(animals_smooth_I > T)
     
-    kernel = np.ones(image_kernel,np.uint8)
-    animals_erosion = cv2.erode(animals_smooth_I ,kernel,iterations = 1)
+    # Erode
+    kernel = np.ones(image_kernel, np.uint8)
+    animals_erosion = cv2.erode(animals_smooth_I, kernel, iterations = 1)
     
     # Label animals and print the amount
     labeled, nr_objects = mh.label(animals_erosion > T)
@@ -158,7 +158,7 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
     labeled = labeled.astype('uint8')
     
     # Dilate
-    labeled = cv2.dilate(labeled,kernel,iterations = 1)
+    labeled = cv2.dilate(labeled, kernel, iterations = 1)
     print("This image contains" , nr_objects, "animals, excluding tiny blobs")
 
     # Plot if animals present
