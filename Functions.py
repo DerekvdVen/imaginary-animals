@@ -126,7 +126,7 @@ def smooth_animals(animals, sigma):
 
 
 
-def count_animals(animals_smooth,minimal_size):
+def count_animals(animals_smooth,minimal_size,image_kernel):
        
         
     # count_animals thresholds the smoothed gaussian blobs and then labels and counts them. Also makes plots to show the animals.
@@ -137,9 +137,15 @@ def count_animals(animals_smooth,minimal_size):
     # Find Otsu threshold T. This is neccessary because amimals_smooth creates a gaussian distribution which is square when labeled. We don't want these squares to overlap when counting, so we threshold them using the Otsu threshold, which minimizes the intra-class variance.
     animals_smooth_I = animals_smooth.astype('uint8')
     T = mh.thresholding.otsu(animals_smooth_I)
-
+    
+    # Make a plot to compare effects of erosion and dilation
+    labeled_test, nr_objects_test = mh.label(animals_smooth_I > T)
+    
+    kernel = np.ones(image_kernel,np.uint8)
+    animals_erosion = cv2.erode(animals_smooth_I ,kernel,iterations = 1)
+    
     # Label animals and print the amount
-    labeled, nr_objects = mh.label(animals_smooth > T)
+    labeled, nr_objects = mh.label(animals_erosion > T)
     print("This image contains" , nr_objects, "animals, including tiny blobs")
     
     # remove small sizes
@@ -149,21 +155,25 @@ def count_animals(animals_smooth,minimal_size):
     
     # Relabel after removing small blobs
     labeled, nr_objects = mh.label(labeled)
+    labeled = labeled.astype('uint8')
     
+    # Dilate
+    labeled = cv2.dilate(labeled,kernel,iterations = 1)
     print("This image contains" , nr_objects, "animals, excluding tiny blobs")
-    
+
     # Plot if animals present
     if nr_objects != 0:
-        print("Labeled blobs")
+        print("Labeled blobs before erosion")
+        pylab.imshow(labeled_test)
+        pylab.jet()
+        pylab.show()
+        
+        print("Labeled blobs after dilation")
         pylab.imshow(labeled)
         pylab.jet()
         pylab.show()
         
-        print("Smoothed animals")
-        pylab.imshow(animals_smooth)
-        pylab.jet()
-        pylab.show()
-        
+
     return labeled, nr_objects
 
 def plot_image(image):
