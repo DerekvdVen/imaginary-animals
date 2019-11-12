@@ -230,15 +230,24 @@ def get_bboxes(labeled, width = 512, height = 512):
     # Calculate bboxes with bbox function and make a list to store the coordinates in
     bboxes = mh.labeled.bbox(labeled)
     bbox_list = []
+    bbox_dict_list = []
+    
     
     # Store coordinates in the bbox list
     for box in bboxes[1:]:
+        
+        # For Kellenberger
         bbox_list.append((abs(box[2] - box[3])/width, abs(box[0] - box[1])/height))
-    
+        
+        # For Detectron2
+        bbox_dict = {}
+        bbox_dict["x0"], bbox_dict["y0"], bbox_dict["x1"], bbox_dict["y1"] = box[2]/width, box[0]/height, box[3]/width, box[1]/height
+        bbox_dict_list.append(bbox_dict)
+                                                                                 
     # Print the bbox list
     print("bboxes:", str(bbox_list), "\n")
     
-    return(bbox_list)
+    return(bbox_list, bbox_dict_list)
 
 
 
