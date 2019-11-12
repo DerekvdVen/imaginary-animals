@@ -261,6 +261,20 @@ def write_file(output_location,image_name,centers_list,bbox_list):
             file.write("\n")
         print("Proper animals found: writing file", "\n")    
 
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 # old stuff
 '''
 def get_centers(animals_smooth, clean_distance, width = 512, height = 512):
