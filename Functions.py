@@ -125,7 +125,7 @@ def smooth_animals(animals, sigma):
 
 
 
-def count_animals(animals_smooth,minimal_size,image_kernel):
+def count_animals(animals_smooth,minimal_size,image_kernel,save):
        
         
     # count_animals thresholds the smoothed gaussian blobs and then labels and counts them. Also makes plots to show the animals.
@@ -173,7 +173,7 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
         pylab.jet()
         pylab.show()
         
-
+        
     return labeled, nr_objects
 
 def plot_image(image):
