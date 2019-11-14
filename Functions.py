@@ -1,12 +1,6 @@
 # Functions for Main.py from imaginary-animals
 
-import rasterio
-import rasterio.plot
-import pyproj
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import os
 import pylab
 import mahotas as mh
@@ -125,7 +119,7 @@ def smooth_animals(animals, sigma):
 
 
 
-def count_animals(animals_smooth,minimal_size,image_kernel,save):
+def count_animals(animals_smooth,minimal_size,image_kernel):
        
         
     # count_animals thresholds the smoothed gaussian blobs and then labels and counts them. Also makes plots to show the animals.
