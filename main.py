@@ -76,6 +76,7 @@ with open("../Data/labels/00_SPLIT.txt","w") as file:
         else:
             plot_image(input_location + image_name)
         
+
         # Get centers of animals using boundaries
         centers_list = get_centers_through_borders(labeled_animals, nr_objects, width = width, height = height)
         
@@ -87,6 +88,7 @@ with open("../Data/labels/00_SPLIT.txt","w") as file:
         
         # Output centers and bboxes
         write_file(output_location,image_name,centers_list,bbox_list)
+        
         
         # Make dict of bboxes for Detectron2
         if bbox_dict_list != None:

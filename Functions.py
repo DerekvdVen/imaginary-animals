@@ -1,16 +1,9 @@
 # Functions for Main.py from imaginary-animals
-
-import rasterio
-import rasterio.plot
-import pyproj
 import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 import os
-import pylab
 import mahotas as mh
 import cv2
+import pylab
 
 
 
@@ -41,7 +34,7 @@ def create_dirs(date):
         print ("Successfully created the directory %s " % path_labels)
         
     try:
-        os.makedirs(path_images)     
+        os.makedirs(path_semantic)     
     except OSError:
         print ("Creation of the directory %s failed" % path_images)
     else:
