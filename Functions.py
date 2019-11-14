@@ -270,9 +270,73 @@ def write_file(output_location,image_name,centers_list,bbox_list):
             file.write("\n")
         print("Proper animals found: writing file", "\n")    
 
+
+def remove_bad_images(bad_image_list):
+    print(bad_image_list)
+    for image in bad_image_list:
+        try:
+            os.remove(input_location + image)
+            os.remove(input_location_s + image)
+            print("removed file")
+        except:
+            print("File already removed")
         
+def get_animal_dicts(img_dir, seg_dir, bboxes):
+    
+    dataset_dicts_list = []
+    img_list = os.listdir(img_dir)
+    seg_list = os.listdir(seg_dir)
+    
+    for image in img_list[75:90]:
         
+        print(image)
+        image_dict = {}
+#     file_name: the full path to the image file.
+        image_dict["file_name"] = img_dir + image
+    
+#     sem_seg_file_name: the full path to the ground truth semantic segmentation file.
+        image_dict["sem_seg_file_name"] = seg_dir + image
+
+#     image: the image as a numpy array.
+        image_dict["image"] = cv2.imread(img_dir + image)
+    
+#     sem_seg: semantic segmentation ground truth in a 2D numpy array. Values in the array represent category labels.
+        image_dict["image"] = cv2.imread(seg_dir + image)
+    
+#     height, width: integer. The shape of image.
+        image_dict["height"], image_dict["width"] = cv2.imread(img_dir + image).shape[:2]
+    
+#     image_id (str): a string to identify this image. Mainly used by certain datasets during evaluation to identify the image, but a dataset may use it for different purposes.
+        image_dict["image_id"] = image[:-4]
+
+#     annotations (list[dict]): the per-instance annotations of every instance in this image. Each annotation dict may contain:
+        annotations = []
+
+        if bboxes.get(image) != None:
+
+            for box_dict in bboxes.get(image):
+                annotations_dict = {}
+                
+                #     bbox (list[float]): list of 4 numbers representing the bounding box of the instance.
+                annotations_dict["bbox"] = [box_dict.get("x0"), box_dict.get("y0"), box_dict.get("x1"), box_dict.get("y1")] 
+                
+                #     bbox_mode (int): the format of bbox. It must be a member of structures.BoxMode. Currently supports: BoxMode.XYXY_ABS, BoxMode.XYWH_ABS.
+                annotations_dict["bbox_mode"] = "BoxMode.XYXY_ABS"
+                
+                #     category_id (int): an integer in the range [0, num_categories) representing the category label. The value num_categories is reserved to represent the “background” category, if applicable.
+                annotations_dict["category_id"] = 1
+                
+                annotations.append(annotations_dict)
+       
         
+    
+    
+        image_dict["annotations"] = annotations
+        dataset_dicts_list.append(image_dict)
+        
+        #print(image_dict, "\n")
+    return dataset_dicts_list
+
         
         
         
