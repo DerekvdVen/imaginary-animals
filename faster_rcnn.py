@@ -13,8 +13,8 @@ from torchvision.models.detection.rpn import AnchorGenerator
 
 #img = mpimg.imread('../Data/images/2019-11/IMG44_280,-80.png')
 
-img = Image.open('../Data/images/2019-11/IMG242_-20,-95.png')
-mask = Image.open('../Data/masks/2019-11/IMG242_-20,-95.png')
+img = Image.open('../Data/images/2019-11/IMG58_70,130.png')
+mask = Image.open('../Data/masks/2019-11/IMG58_70,130.png')
 
 mask.putpalette([
     0, 0, 0, # black background
@@ -37,18 +37,19 @@ class Animals_dataset(torch.utils.data.Dataset):
         self.transforms = transforms
         # load all image files, sorting them to
         # ensure that they are aligned
-        self.imgs = list(sorted(os.listdir(os.path.join(root, "images/2019-11"))))
+        self.imgs = list(sorted(os.listdir(os.path.join(root, "images_with_animals/2019-11"))))
         self.masks = list(sorted(os.listdir(os.path.join(root, "masks/2019-11"))))
 
     def __getitem__(self, idx):
         # load images and masks
-        img_path = os.path.join(self.root, "images/2019-11", self.imgs[idx])
+        img_path = os.path.join(self.root, "images_with_animals/2019-11", self.imgs[idx])
         mask_path = os.path.join(self.root, "masks/2019-11", self.masks[idx])
         img = Image.open(img_path).convert("RGB")
         # note that we haven't converted the mask to RGB,
         # because each color corresponds to a different instance
         # with 0 being background
         mask = Image.open(mask_path)
+
         mask = np.array(mask)
         
         # instances are encoded as different colors
@@ -237,3 +238,15 @@ for epoch in range(num_epochs):
     lr_scheduler.step()
     # evaluate on the test dataset
     evaluate(model, data_loader_test, device=device)
+
+# pick one image from the test set
+img, _ = dataset_test[0]
+# put the model in evaluation mode
+model.eval()
+with torch.no_grad():
+    prediction = model([img.to(device)])
+
+print(prediction)
+
+Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy())
+
