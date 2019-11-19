@@ -18,7 +18,7 @@ def create_dirs(date):
     
     path_images = "../Data/images/" + date
     path_labels = "../Data/labels/" + date
-    path_semantic = "../Data/semantic/" + date
+    #path_semantic = "../Data/semantic/" + date
     
     try:
         os.makedirs(path_images)
@@ -96,7 +96,7 @@ def mask_seg(imagelocation):
     mask = mask_ground + mask_veg + mask_water
 
     # Perform mask on img_hsv, and get animals array
-    target = cv2.bitwise_and(img_hsv,img_hsv, mask=mask)
+    #target = cv2.bitwise_and(img_hsv,img_hsv, mask=mask)
     animals = cv2.bitwise_not(mask)
     
     return animals, mask
@@ -132,7 +132,7 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
     T = mh.thresholding.otsu(animals_smooth_I)
     
     # Make a plot to compare effects of erosion and dilation
-    labeled_test, nr_objects_test = mh.label(animals_smooth_I > T)
+    #labeled_test, nr_objects_test = mh.label(animals_smooth_I > T)
     
     # Erode
     kernel = np.ones(image_kernel, np.uint8)
@@ -155,20 +155,26 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
     labeled = cv2.dilate(labeled, kernel, iterations = 1)
     print("This image contains" , nr_objects, "animals, excluding tiny blobs")
 
+    #print(np.unique(labeled))
+    mask = labeled
+    mask[mask > 0] = 1
+    #pylab.imshow(mask)
+    #pylab.jet()
+    #pylab.show()
     # Plot if animals present
-    if nr_objects != 0:
-        print("Labeled blobs before erosion")
-        pylab.imshow(labeled_test)
-        pylab.jet()
-        pylab.show()
+    # if nr_objects != 0:
+    #     print("Labeled blobs before erosion")
+    #     pylab.imshow(labeled_test)
+    #     pylab.jet()
+    #     pylab.show()
         
-        print("Labeled blobs after dilation")
-        pylab.imshow(labeled)
-        pylab.jet()
-        pylab.show()
+    #     print("Labeled blobs after dilation")
+    #     pylab.imshow(labeled)
+    #     pylab.jet()
+    #     pylab.show()
         
         
-    return labeled, nr_objects
+    return labeled, nr_objects, mask
 
 def plot_image(image):
     
@@ -279,9 +285,9 @@ def get_animal_dicts(img_dir, seg_dir, bboxes):
     
     dataset_dicts_list = []
     img_list = os.listdir(img_dir)
-    seg_list = os.listdir(seg_dir)
+    #seg_list = os.listdir(seg_dir)
     
-    for image in img_list[75:90]:
+    for image in img_list:
         
         print(image)
         image_dict = {}
@@ -316,7 +322,7 @@ def get_animal_dicts(img_dir, seg_dir, bboxes):
                 
                 #     bbox_mode (int): the format of bbox. It must be a member of structures.BoxMode. Currently supports: BoxMode.XYXY_ABS, BoxMode.XYWH_ABS.
                 annotations_dict["bbox_mode"] = "BoxMode.XYXY_ABS"
-                
+
                 #     category_id (int): an integer in the range [0, num_categories) representing the category label. The value num_categories is reserved to represent the “background” category, if applicable.
                 annotations_dict["category_id"] = 1
                 
