@@ -10,27 +10,13 @@ import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
-
-#img = mpimg.imread('../Data/images/2019-11/IMG44_280,-80.png')
-
-img = Image.open('../Data/images/2019-11/IMG58_70,130.png')
-mask = Image.open('../Data/masks/2019-11/IMG58_70,130.png')
-
-mask.putpalette([
-    0, 0, 0, # black background
-    255, 0, 0, # index 1 is red
-])
-#imgmask = np.array(mask)
-print(mask)
+from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
+from engine import train_one_epoch, evaluate
+import utils
+import transforms as T
 
 
-#plt.imshow(mask)
-#plt.show()
-
-#plt.imshow(img)
-#plt.show()
-#root = ../Data
-
+# Define class
 class Animals_dataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms=None):
         self.root = root
@@ -106,54 +92,42 @@ print(dataset[0])
 # load a model pre-trained pre-trained on COCO
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 
-
-############ SO: MAYBE JUST DON"T DO THIS PART? ################
-
-# replace the classifier with a new one, that has
-# num_classes which is user-defined
-num_classes = 2  # 1 class (animal) + background
+# replace the classifier with a new one, that has num_classes which is user-defined,  1 class (animal) + background
+num_classes = 2
 # get number of input features for the classifier
 in_features = model.roi_heads.box_predictor.cls_score.in_features
 # replace the pre-trained head with a new one
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes) 
 
-# load a pre-trained model for classification and return
-# only the features
+# load a pre-trained model for classification and return only the features
 backbone = torchvision.models.mobilenet_v2(pretrained=True).features
-# FasterRCNN needs to know the number of
-# output channels in a backbone. For mobilenet_v2, it's 1280
-# so we need to add it here
+# FasterRCNN needs to know the number of output channels in a backbone. For mobilenet_v2, it's 1280 so we need to add it here
 backbone.out_channels = 1280
 
-# let's make the RPN generate 5 x 3 anchors per spatial
-# location, with 5 different sizes and 3 different aspect
-# ratios. We have a Tuple[Tuple[int]] because each feature
-# map could potentially have different sizes and
-# aspect ratios 
-anchor_generator = AnchorGenerator(sizes=((32, 64, 128, 256, 512),),
-                                   aspect_ratios=((0.5, 1.0, 2.0),))
+model = FasterRCNN(backbone,num_classes=2)
+
+def edit_model(model):
+
+
+
+    # let's make the RPN generate 5 x 3 anchors per spatial location, with 5 different sizes and 3 different aspect
+    # ratios. We have a Tuple[Tuple[int]] because each feature map could potentially have different sizes and aspect ratios 
+    anchor_generator = AnchorGenerator(sizes=((32, 64, 128, 256, 512),),
+                                    aspect_ratios=((0.5, 1.0, 2.0),))
  
-# let's define what are the feature maps that we will
-# use to perform the region of interest cropping, as well as
-# the size of the crop after rescaling.
-# if your backbone returns a Tensor, featmap_names is expected to
-# be [0]. More generally, the backbone should return an
-# OrderedDict[Tensor], and in featmap_names you can choose which
-# feature maps to use.
-roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=[0],
-                                                output_size=7,
-                                                sampling_ratio=2)
+    # let's define what are the feature maps that we will use to perform the region of interest cropping, as well as
+    # the size of the crop after rescaling. if your backbone returns a Tensor, featmap_names is expected to
+    # be [0]. More generally, the backbone should return an OrderedDict[Tensor], and in featmap_names you can choose which
+    # feature maps to use.
+    roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=[0],
+                                                    output_size=7,
+                                                    sampling_ratio=2)
  
-# put the pieces together inside a FasterRCNN model
-model = FasterRCNN(backbone,
-                   num_classes=2,
-                   rpn_anchor_generator=anchor_generator,
-                   box_roi_pool=roi_pooler)
-
-
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
-from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
-
+    # put the pieces together inside a FasterRCNN model
+    model = FasterRCNN(backbone,
+                    num_classes=2,
+                    rpn_anchor_generator=anchor_generator,
+                    box_roi_pool=roi_pooler)
 def get_instance_segmentation_model(num_classes):
     # load an instance segmentation model pre-trained on COCO
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
@@ -172,12 +146,6 @@ def get_instance_segmentation_model(num_classes):
                                                        num_classes)
 
     return model
-
-from engine import train_one_epoch, evaluate
-import utils
-import transforms as T
-
-
 def get_transform(train):
     transforms = []
     # converts the image, a PIL image, into a PyTorch Tensor
@@ -195,8 +163,8 @@ dataset_test = Animals_dataset('../Data/', get_transform(train=False))
 # split the dataset in train and test set
 torch.manual_seed(1)
 indices = torch.randperm(len(dataset)).tolist()
-dataset = torch.utils.data.Subset(dataset, indices[:-25])
-dataset_test = torch.utils.data.Subset(dataset_test, indices[-25:])
+dataset = torch.utils.data.Subset(dataset, indices[:-10])
+dataset_test = torch.utils.data.Subset(dataset_test, indices[-10:])
 
 # define training and validation data loaders
 data_loader = torch.utils.data.DataLoader(
@@ -207,6 +175,7 @@ data_loader_test = torch.utils.data.DataLoader(
     dataset_test, batch_size=1, shuffle=False, num_workers=4,
     collate_fn=utils.collate_fn)
 
+# set device
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 # our dataset has two classes only - background and person
@@ -214,6 +183,7 @@ num_classes = 2
 
 # get the model using our helper function
 model = get_instance_segmentation_model(num_classes)
+
 # move model to the right device
 model.to(device)
 
@@ -228,19 +198,8 @@ lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                step_size=3,
                                                gamma=0.1)
 
-# Print model's state_dict
-print("Model's state_dict:")
-for param_tensor in model.state_dict():
-    print(param_tensor, "\t", model.state_dict()[param_tensor].size())
-
-# Print optimizer's state_dict
-print("Optimizer's state_dict:")
-for var_name in optimizer.state_dict():
-    print(var_name, "\t", optimizer.state_dict()[var_name])
-
-
 # let's train it for 10 epochs
-num_epochs = 2
+num_epochs = 10
 
 for epoch in range(num_epochs):
     # train for one epoch, printing every 10 iterations
@@ -252,21 +211,28 @@ for epoch in range(num_epochs):
 
 PATH = '../models/faster_rcnn.pth'
 
-torch.save(model.state_dict(), PATH)
+#torch.save(model.state_dict(), PATH)
+#torch.save(model, PATH)
 
 # pick one image from the test set
-img, _ = dataset_test[0]
-# put the model in evaluation mode
-model.eval()
-with torch.no_grad():
-    prediction = model([img.to(device)])
+for x in range(10):
+    img, _ = dataset_test[x]
 
-print(prediction)
+    # put the model in evaluation mode
+    model.eval()
+    with torch.no_grad():
+        prediction = model([img.to(device)])
 
-img = Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy())
-plt.imshow(img)
-plt.show()
+    print(prediction)
 
-img_result = Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy())
-plt.imshow(img_result)
-plt.show()
+    img = Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy())
+    #plt.imshow(img)
+    #plt.show()
+    #im = Image.fromarray(img)
+    img.save('../output/image_' + str(x) + ".png")
+
+    img_result = Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy())
+    #plt.imshow(img_result)
+    #plt.show()
+    #im_2 = Image.fromarray(img_result)
+    img_result.save('../output/image_' + str(x) + 'seg.png')

@@ -12,6 +12,10 @@ from torchvision.models.detection import FasterRCNN
 from torchvision.models.detection.rpn import AnchorGenerator
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
+from engine import train_one_epoch, evaluate
+import utils
+import transforms as T
+
 
 class Animals_dataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms=None):
@@ -100,7 +104,15 @@ def get_instance_segmentation_model(num_classes):
                                                        num_classes)
 
     return model
-
+def get_transform(train):
+    transforms = []
+    # converts the image, a PIL image, into a PyTorch Tensor
+    transforms.append(T.ToTensor())
+    if train:
+        # during training, randomly flip the training images
+        # and ground-truth for data augmentation
+        transforms.append(T.RandomHorizontalFlip(0.5))
+    return T.Compose(transforms)
 
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 
@@ -176,8 +188,8 @@ model = get_instance_segmentation_model(num_classes)
 
 PATH = '../models/faster_rcnn.pth'
 #model = Net()
-model.load_state_dict(torch.load(PATH))
-
+#model.load_state_dict(torch.load(PATH))
+model = torch.load(PATH)
 model.eval()
 
 
@@ -192,20 +204,23 @@ print("Optimizer's state_dict:")
 for var_name in optimizer.state_dict():
     print(var_name, "\t", optimizer.state_dict()[var_name])
 
+# use our dataset and defined transformations
+dataset = Animals_dataset('../Data/', get_transform(train=True))
+dataset_test = Animals_dataset('../Data/', get_transform(train=False))
+
 
 # pick one image from the test set
 img, _ = dataset_test[0]
+
 # put the model in evaluation mode
 model.eval()
+
 with torch.no_grad():
     prediction = model([img.to(device)])
 
 print(prediction)
 
 
-# use our dataset and defined transformations
-dataset = Animals_dataset('../Data/', get_transform(train=True))
-dataset_test = Animals_dataset('../Data/', get_transform(train=False))
 
 Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy())
 img = Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy())
