@@ -271,7 +271,7 @@ def write_file(output_location,image_name,centers_list,bbox_list):
         print("Proper animals found: writing file", "\n")    
 
 
-def remove_bad_images(bad_image_list):
+def remove_bad_images(bad_image_list,input_location,input_location_s):
     print(bad_image_list)
     for image in bad_image_list:
         try:

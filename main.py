@@ -113,7 +113,7 @@ with open("../Data/labels/00_SPLIT.txt","w") as file:
 
 
 # Deletes images that have innapropriate compositions in them
-remove_bad_images(bad_image_list)
+remove_bad_images(bad_image_list,input_location,input_location_s)
 print("\n 1 \n")
 
 # Create dicts for dataloader

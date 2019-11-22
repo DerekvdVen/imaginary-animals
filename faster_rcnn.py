@@ -104,11 +104,8 @@ backbone = torchvision.models.mobilenet_v2(pretrained=True).features
 # FasterRCNN needs to know the number of output channels in a backbone. For mobilenet_v2, it's 1280 so we need to add it here
 backbone.out_channels = 1280
 
-model = FasterRCNN(backbone,num_classes=2)
-
-def edit_model(model):
-
-
+#model = FasterRCNN(backbone,num_classes=2)
+def edit_model():
 
     # let's make the RPN generate 5 x 3 anchors per spatial location, with 5 different sizes and 3 different aspect
     # ratios. We have a Tuple[Tuple[int]] because each feature map could potentially have different sizes and aspect ratios 
@@ -122,12 +119,16 @@ def edit_model(model):
     roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=[0],
                                                     output_size=7,
                                                     sampling_ratio=2)
+    return anchor_generator, roi_pooler
  
     # put the pieces together inside a FasterRCNN model
-    model = FasterRCNN(backbone,
-                    num_classes=2,
-                    rpn_anchor_generator=anchor_generator,
-                    box_roi_pool=roi_pooler)
+anchor_generator, roi_pooler = edit_model()
+
+model = FasterRCNN(backbone,
+                num_classes=2,
+                rpn_anchor_generator=anchor_generator,
+                box_roi_pool=roi_pooler)
+
 def get_instance_segmentation_model(num_classes):
     # load an instance segmentation model pre-trained on COCO
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
@@ -163,8 +164,8 @@ dataset_test = Animals_dataset('../Data/', get_transform(train=False))
 # split the dataset in train and test set
 torch.manual_seed(1)
 indices = torch.randperm(len(dataset)).tolist()
-dataset = torch.utils.data.Subset(dataset, indices[:-10])
-dataset_test = torch.utils.data.Subset(dataset_test, indices[-10:])
+dataset = torch.utils.data.Subset(dataset, indices[:-50])
+dataset_test = torch.utils.data.Subset(dataset_test, indices[-50:])
 
 # define training and validation data loaders
 data_loader = torch.utils.data.DataLoader(
@@ -210,12 +211,12 @@ for epoch in range(num_epochs):
     evaluate(model, data_loader_test, device=device)
 
 PATH = '../models/faster_rcnn.pth'
+torch.save(model.state_dict(), PATH)
 
-#torch.save(model.state_dict(), PATH)
 #torch.save(model, PATH)
 
 # pick one image from the test set
-for x in range(10):
+for x in range(50):
     img, _ = dataset_test[x]
 
     # put the model in evaluation mode
@@ -230,9 +231,11 @@ for x in range(10):
     #plt.show()
     #im = Image.fromarray(img)
     img.save('../output/image_' + str(x) + ".png")
-
-    img_result = Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy())
-    #plt.imshow(img_result)
-    #plt.show()
-    #im_2 = Image.fromarray(img_result)
-    img_result.save('../output/image_' + str(x) + 'seg.png')
+    try:
+        img_result = Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy())
+        #plt.imshow(img_result)
+        #plt.show()
+        #im_2 = Image.fromarray(img_result)
+        img_result.save('../output/image_' + str(x) + 'seg.png')
+    except:
+        print("hmm I guess it didn't detect any animals?")
