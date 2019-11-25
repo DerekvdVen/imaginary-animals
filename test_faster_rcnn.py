@@ -9,14 +9,14 @@ import torch.utils.data
 import torchvision
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 from torchvision.models.detection import FasterRCNN
-from torchvision.models.detection.rpn import AnchorGenerator
-from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
+from torchvision.models.detection.rpn import AnchorGeneratorr
 from torchvision.models.detection.mask_rcnn import MaskRCNNPredictor
 from engine import train_one_epoch, evaluate
 import utils
 import transforms as T
 
 
+# Define class
 class Animals_dataset(torch.utils.data.Dataset):
     def __init__(self, root, transforms=None):
         self.root = root
@@ -86,13 +86,12 @@ class Animals_dataset(torch.utils.data.Dataset):
         return len(self.imgs)
 
 
+# Get functions
 def edit_model(model):
 
-
-
-    # let's make the RPN generate 5 x 3 anchors per spatial location, with 5 different sizes and 3 different aspect
+    # let's make the RPN generate 3 x 3 anchors per spatial location, with 3 different sizes and 3 different aspect
     # ratios. We have a Tuple[Tuple[int]] because each feature map could potentially have different sizes and aspect ratios 
-    anchor_generator = AnchorGenerator(sizes=((32, 64, 128, 256, 512),),
+    anchor_generator = AnchorGenerator(sizes=((32, 64, 128),),
                                     aspect_ratios=((0.5, 1.0, 2.0),))
  
     # let's define what are the feature maps that we will use to perform the region of interest cropping, as well as
@@ -102,13 +101,7 @@ def edit_model(model):
     roi_pooler = torchvision.ops.MultiScaleRoIAlign(featmap_names=[0],
                                                     output_size=7,
                                                     sampling_ratio=2)
- 
-    # put the pieces together inside a FasterRCNN model
-    model = FasterRCNN(backbone,
-                    num_classes=2,
-                    rpn_anchor_generator=anchor_generator,
-                    box_roi_pool=roi_pooler)
-
+    return anchor_generator, roi_pooler
 def get_instance_segmentation_model(num_classes):
     # load an instance segmentation model pre-trained on COCO
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
@@ -137,27 +130,65 @@ def get_transform(train):
         transforms.append(T.RandomHorizontalFlip(0.5))
     return T.Compose(transforms)
 
+
 # load a model pre-trained pre-trained on COCO
 model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
 
-# replace the classifier with a new one, that has num_classes which is user-defined,  1 class (animal) + background
+
+# replace the classifier with a new one, get number of imput features for the classifier, and replace the pre-trained head with a new one
 num_classes = 2
-# get number of input features for the classifier
 in_features = model.roi_heads.box_predictor.cls_score.in_features
-# replace the pre-trained head with a new one
 model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes) 
 
-# load a pre-trained model for classification and return only the features
+
+# load a pre-trained model for classification and return only the features, FasterRCNN needs to know the n output channels in a backbone, mobilenet_v2 = 1280
 backbone = torchvision.models.mobilenet_v2(pretrained=True).features
-# FasterRCNN needs to know the number of output channels in a backbone. For mobilenet_v2, it's 1280 so we need to add it here
 backbone.out_channels = 1280
 
-model = FasterRCNN(backbone,num_classes=2)
+
+# load model with new backbone
+# model = FasterRCNN(backbone,num_classes=2)
+
+# fancy model
+anchor_generator, roi_pooler = edit_model()
+model = FasterRCNN(backbone,
+                num_classes=2,
+                rpn_anchor_generator=anchor_generator,
+                box_roi_pool=roi_pooler)
+
+
+# set dataset and defined transformations
+dataset_train = Animals_dataset('../Data/', get_transform(train=True))
+dataset_test = Animals_dataset('../Data/', get_transform(train=False))
+
+
+# split the dataset in train and test set
+torch.manual_seed(1)
+indices = torch.randperm(len(dataset)).tolist()
+dataset_train = torch.utils.data.Subset(dataset, indices[:-50])
+dataset_test = torch.utils.data.Subset(dataset_test, indices[-50:])
+
+
+# define training and validation data loaders
+data_loader = torch.utils.data.DataLoader(
+    dataset_train, batch_size=2, shuffle=True, num_workers=4,
+    collate_fn=utils.collate_fn)
+data_loader_test = torch.utils.data.DataLoader(
+    dataset_test, batch_size=1, shuffle=False, num_workers=4,
+    collate_fn=utils.collate_fn)
+
+
+# get the model using our helper function and move to device
+model = get_instance_segmentation_model(num_classes)
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+model.to(device)
+
 
 # construct an optimizer
 params = [p for p in model.parameters() if p.requires_grad]
 optimizer = torch.optim.SGD(params, lr=0.005,
                             momentum=0.9, weight_decay=0.0005)
+
 
 # and a learning rate scheduler which decreases the learning rate by
 # 10x every 3 epochs
@@ -166,60 +197,38 @@ lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                gamma=0.1)
 
 
-
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-
-# our dataset has two classes only - background and person
-num_classes = 2
-
-# get the model using our helper function
-model = get_instance_segmentation_model(num_classes)
-
-# move model to the right device
-model.to(device)
-
-
+# load model and set to evalutation mode
 PATH = '../models/faster_rcnn.pth'
-#model = Net()
 model.load_state_dict(torch.load(PATH))
-
 model.eval()
 
 
 
-# Print model's state_dict
-print("Model's state_dict:")
-for param_tensor in model.state_dict():
-    print(param_tensor, "\t", model.state_dict()[param_tensor].size())
-
-# Print optimizer's state_dict
-print("Optimizer's state_dict:")
-for var_name in optimizer.state_dict():
-    print(var_name, "\t", optimizer.state_dict()[var_name])
-
-# use our dataset and defined transformations
-dataset = Animals_dataset('../Data/', get_transform(train=True))
-dataset_test = Animals_dataset('../Data/', get_transform(train=False))
+# test and save images
+for x in range(50):
+    img, _ = dataset_test[x]
 
 
-# pick one image from the test set
-img, _ = dataset_test[0]
+    # put the model in evaluation mode
+    model.eval()
+    with torch.no_grad():
+        prediction = model([img.to(device)])
 
-# put the model in evaluation mode
-model.eval()
+    print(prediction)
 
-with torch.no_grad():
-    prediction = model([img.to(device)])
+    
+    img = Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy())
+    # plt.imshow(img)
+    # plt.show()
+    # im = Image.fromarray(img)
 
-print(prediction)
+    img.save('../output/image_' + str(x) + ".png")
+    try:
+        img_result = Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy())
+        #plt.imshow(img_result)
+        #plt.show()
+        #im_2 = Image.fromarray(img_result)
+        img_result.save('../output/image_' + str(x) + 'seg.png')
+    except:
+        print("hmm I guess it didn't detect any animals?")
 
-
-
-Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy())
-img = Image.fromarray(img.mul(255).permute(1, 2, 0).byte().numpy())
-plt.imshow(img)
-plt.show()
-
-img_result = Image.fromarray(prediction[0]['masks'][0, 0].mul(255).byte().cpu().numpy())
-plt.imshow(img_result)
-plt.show()

@@ -86,30 +86,12 @@ class Animals_dataset(torch.utils.data.Dataset):
         return len(self.imgs)
 
 
-dataset = Animals_dataset('../Data/')
-print(dataset[0])
-
-# load a model pre-trained pre-trained on COCO
-model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
-
-# replace the classifier with a new one, that has num_classes which is user-defined,  1 class (animal) + background
-num_classes = 2
-# get number of input features for the classifier
-in_features = model.roi_heads.box_predictor.cls_score.in_features
-# replace the pre-trained head with a new one
-model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes) 
-
-# load a pre-trained model for classification and return only the features
-backbone = torchvision.models.mobilenet_v2(pretrained=True).features
-# FasterRCNN needs to know the number of output channels in a backbone. For mobilenet_v2, it's 1280 so we need to add it here
-backbone.out_channels = 1280
-
-#model = FasterRCNN(backbone,num_classes=2)
+# Get functions
 def edit_model():
 
-    # let's make the RPN generate 5 x 3 anchors per spatial location, with 5 different sizes and 3 different aspect
+    # let's make the RPN generate 3 x 3 anchors per spatial location, with 5 different sizes and 3 different aspect
     # ratios. We have a Tuple[Tuple[int]] because each feature map could potentially have different sizes and aspect ratios 
-    anchor_generator = AnchorGenerator(sizes=((32, 64, 128, 256, 512),),
+    anchor_generator = AnchorGenerator(sizes=((32, 64, 128),),
                                     aspect_ratios=((0.5, 1.0, 2.0),))
  
     # let's define what are the feature maps that we will use to perform the region of interest cropping, as well as
@@ -120,15 +102,6 @@ def edit_model():
                                                     output_size=7,
                                                     sampling_ratio=2)
     return anchor_generator, roi_pooler
- 
-    # put the pieces together inside a FasterRCNN model
-anchor_generator, roi_pooler = edit_model()
-
-model = FasterRCNN(backbone,
-                num_classes=2,
-                rpn_anchor_generator=anchor_generator,
-                box_roi_pool=roi_pooler)
-
 def get_instance_segmentation_model(num_classes):
     # load an instance segmentation model pre-trained on COCO
     model = torchvision.models.detection.maskrcnn_resnet50_fpn(pretrained=True)
@@ -157,41 +130,65 @@ def get_transform(train):
         transforms.append(T.RandomHorizontalFlip(0.5))
     return T.Compose(transforms)
 
+
+# load a model pre-trained pre-trained on COCO
+model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
+
+
+# replace the classifier with a new one, get number of imput features for the classifier, and replace the pre-trained head with a new one
+num_classes = 2
+in_features = model.roi_heads.box_predictor.cls_score.in_features
+model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes) 
+
+
+# load a pre-trained model for classification and return only the features, FasterRCNN needs to know the n output channels in a backbone, mobilenet_v2 = 1280
+backbone = torchvision.models.mobilenet_v2(pretrained=True).features
+backbone.out_channels = 1280
+
+
+# # load model with new backbone
+# model = FasterRCNN(backbone,num_classes=2)
+
+# Get fancy model
+anchor_generator, roi_pooler = edit_model()
+model = FasterRCNN(backbone,
+                num_classes=2,
+                rpn_anchor_generator=anchor_generator,
+                box_roi_pool=roi_pooler)
+
+
 # use our dataset and defined transformations
-dataset = Animals_dataset('../Data/', get_transform(train=True))
+dataset_train = Animals_dataset('../Data/', get_transform(train=True))
 dataset_test = Animals_dataset('../Data/', get_transform(train=False))
+
 
 # split the dataset in train and test set
 torch.manual_seed(1)
 indices = torch.randperm(len(dataset)).tolist()
-dataset = torch.utils.data.Subset(dataset, indices[:-50])
+dataset_train = torch.utils.data.Subset(dataset, indices[:-50])
 dataset_test = torch.utils.data.Subset(dataset_test, indices[-50:])
+
 
 # define training and validation data loaders
 data_loader = torch.utils.data.DataLoader(
-    dataset, batch_size=2, shuffle=True, num_workers=4,
+    dataset_train, batch_size=2, shuffle=True, num_workers=4,
     collate_fn=utils.collate_fn)
-
 data_loader_test = torch.utils.data.DataLoader(
     dataset_test, batch_size=1, shuffle=False, num_workers=4,
     collate_fn=utils.collate_fn)
 
-# set device
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-# our dataset has two classes only - background and person
-num_classes = 2
-
-# get the model using our helper function
+# get the model using our helper function and move to device
 model = get_instance_segmentation_model(num_classes)
-
-# move model to the right device
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 model.to(device)
+
 
 # construct an optimizer
 params = [p for p in model.parameters() if p.requires_grad]
 optimizer = torch.optim.SGD(params, lr=0.005,
                             momentum=0.9, weight_decay=0.0005)
+
 
 # and a learning rate scheduler which decreases the learning rate by
 # 10x every 3 epochs
@@ -199,9 +196,9 @@ lr_scheduler = torch.optim.lr_scheduler.StepLR(optimizer,
                                                step_size=3,
                                                gamma=0.1)
 
+
 # let's train it for 10 epochs
 num_epochs = 10
-
 for epoch in range(num_epochs):
     # train for one epoch, printing every 10 iterations
     train_one_epoch(model, optimizer, data_loader, device, epoch, print_freq=10)
@@ -210,10 +207,11 @@ for epoch in range(num_epochs):
     # evaluate on the test dataset
     evaluate(model, data_loader_test, device=device)
 
+
+# save model state_dict
 PATH = '../models/faster_rcnn.pth'
 torch.save(model.state_dict(), PATH)
 
-#torch.save(model, PATH)
 
 # pick one image from the test set
 for x in range(50):
