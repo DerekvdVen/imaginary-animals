@@ -164,8 +164,8 @@ dataset_test = Animals_dataset('../Data/', get_transform(train=False))
 
 # split the dataset in train and test set
 torch.manual_seed(1)
-indices = torch.randperm(len(dataset)).tolist()
-dataset_train = torch.utils.data.Subset(dataset, indices[:-50])
+indices = torch.randperm(len(dataset_train)).tolist()
+dataset_train = torch.utils.data.Subset(dataset_train, indices[:-50])
 dataset_test = torch.utils.data.Subset(dataset_test, indices[-50:])
 
 
@@ -214,7 +214,7 @@ torch.save(model.state_dict(), PATH)
 
 
 # pick one image from the test set
-for x in range(50):
+for x in range(10):
     img, _ = dataset_test[x]
 
     # put the model in evaluation mode
