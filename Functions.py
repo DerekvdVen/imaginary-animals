@@ -5,10 +5,11 @@ import os
 import pylab
 import mahotas as mh
 import cv2
+import copy
 
 
 
-def create_dirs(date):
+def create_dirs():
     
     
     # create_dirs creates directories for storing data
@@ -16,9 +17,9 @@ def create_dirs(date):
     # output: none
     
     
-    path_images = "../Data/images/" + date
-    path_labels = "../Data/labels/" + date
-    #path_semantic = "../Data/semantic/" + date
+    path_images = "../Data/images/" 
+    path_labels = "../Data/labels/" 
+    #path_semantic = "../Data/semantic/" 
     
     try:
         os.makedirs(path_images)
@@ -41,9 +42,7 @@ def create_dirs(date):
     else:
         print ("Successfully created the directory %s " % path_images)
 
-        
-        
-        
+                
 def check_sky(input_image_s):
     
     
@@ -64,7 +63,6 @@ def check_sky(input_image_s):
         return True
     else:
         return False
-
     
     
 def mask_seg(imagelocation):
@@ -102,7 +100,6 @@ def mask_seg(imagelocation):
     return animals, mask
 
 
-
 def smooth_animals(animals, sigma):
     
     
@@ -116,7 +113,6 @@ def smooth_animals(animals, sigma):
     
     
     return animals_smooth
-
 
 
 def count_animals(animals_smooth,minimal_size,image_kernel):
@@ -156,8 +152,9 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
     print("This image contains" , nr_objects, "animals, excluding tiny blobs")
 
     #print(np.unique(labeled))
-    mask = labeled
+    mask = copy.copy(labeled)
     mask[mask > 0] = 1
+    
     #pylab.imshow(mask)
     #pylab.jet()
     #pylab.show()
@@ -176,6 +173,7 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
         
     return labeled, nr_objects, mask
 
+
 def plot_image(image):
     
     
@@ -190,8 +188,7 @@ def plot_image(image):
     RGB_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     pylab.imshow(RGB_img)
     pylab.show()
-
-    
+  
     
 def get_centers_through_borders(labeled, nr_objects, width = 512, height = 512):
     
@@ -204,10 +201,12 @@ def get_centers_through_borders(labeled, nr_objects, width = 512, height = 512):
     # Create centers_list list for centers
     centers_list = []
     
+    print("unique things:  ", np.unique(labeled))
     # For amount of animals in picture, find the borders of every animal, and take the mean value of the x and y border values, then append to list
     for x in range(nr_objects):
         
         location = np.where(mh.borders(labeled == x+1))
+        print("center location: ",  location)
         x_location = np.mean(location[1])/width
         y_location = np.mean(location[0])/height
         centers_list.append((x_location,y_location))
@@ -216,7 +215,6 @@ def get_centers_through_borders(labeled, nr_objects, width = 512, height = 512):
     print("center locations:" ,  str(centers_list) , "\n")
     
     return(centers_list)
-
 
 
 def get_bboxes(labeled, width = 512, height = 512):
@@ -231,7 +229,7 @@ def get_bboxes(labeled, width = 512, height = 512):
     bboxes = mh.labeled.bbox(labeled)
     bbox_list = []
     bbox_dict_list = []
-    
+    print("boxes:  ", bboxes)
     
     # Store coordinates in the bbox list
     for box in bboxes[1:]:
@@ -241,14 +239,13 @@ def get_bboxes(labeled, width = 512, height = 512):
         
         # For Detectron2
         bbox_dict = {}
-        bbox_dict["x0"], bbox_dict["y0"], bbox_dict["x1"], bbox_dict["y1"] = box[2]/width, box[0]/height, box[3]/width, box[1]/height
+        bbox_dict["x0"], bbox_dict["y0"], bbox_dict["x1"], bbox_dict["y1"] = box[2], box[0], box[3], box[1]
         bbox_dict_list.append(bbox_dict)
                                                                                  
     # Print the bbox list
     print("bboxes:", str(bbox_list), "\n")
     
     return(bbox_list, bbox_dict_list)
-
 
 
 def write_file(output_location,image_name,centers_list,bbox_list):
@@ -281,6 +278,10 @@ def remove_bad_images(bad_image_list,input_location,input_location_s):
         except:
             print("File already removed")
         
+
+
+
+'''
 def get_animal_dicts(img_dir, seg_dir, bboxes):
     
     dataset_dicts_list = []
@@ -343,7 +344,7 @@ def get_animal_dicts(img_dir, seg_dir, bboxes):
         
         
         
-        
+'''
         
         
         
