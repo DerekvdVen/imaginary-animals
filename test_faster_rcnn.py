@@ -205,7 +205,7 @@ model.eval()
 
 
 # test and save images
-for x in range(50):
+for x in range(10):
     img, _ = dataset_test[x]
 
 
