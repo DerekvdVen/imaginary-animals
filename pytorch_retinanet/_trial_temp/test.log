@@ -1,0 +1,338 @@
+2019-12-17 11:19:17+0100 [-] Log opened.
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_relay.EventRelayTestCase.test_interface <--
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_relay.EventRelayTestCase.test_name <--
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_relay.EventRelayTestCase.test_send_event <--
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_spawn.SpawnCommandProtocolTestCase.test_bad_process <--
+2019-12-17 11:19:17+0100 [INFO -] Running external command: /bin/sh
+2019-12-17 11:19:17+0100 [WARNING -] /bin/sh returned non-zero (99)
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_spawn.SpawnCommandProtocolTestCase.test_good_process <--
+2019-12-17 11:19:17+0100 [INFO -] Running external command: /bin/ls
+2019-12-17 11:19:17+0100 [DEBUG -] External process said: test.log
+	_trial_marker
+	
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_spawn.SpawnCommandProtocolTestCase.test_interface <--
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_spawn.SpawnCommandProtocolTestCase.test_no_exec <--
+2019-12-17 11:19:17+0100 [INFO -] Running external command: /not/a/real/executable
+2019-12-17 11:19:17+0100 [WARNING -] /not/a/real/executable is not executable
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_spawn.SpawnCommandProtocolTestCase.test_stderr <--
+2019-12-17 11:19:17+0100 [INFO -] Running external command: /bin/sh
+2019-12-17 11:19:17+0100 [DEBUG -] External process said: THIS_IS_STDOUT
+	
+2019-12-17 11:19:17+0100 [DEBUG -] External process said: THIS_IS_STDERR
+	
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_spawn.SpawnCommandProtocolTestCase.test_stdout <--
+2019-12-17 11:19:17+0100 [INFO -] Running external command: /bin/sh
+2019-12-17 11:19:17+0100 [DEBUG -] External process said: THIS_IS_STDOUT
+	
+2019-12-17 11:19:17+0100 [DEBUG -] External process said: THIS_IS_STDERR
+	
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.handler.test.test_spawn.SpawnCommandProtocolTestCase.test_write_data <--
+2019-12-17 11:19:17+0100 [INFO -] Running external command: /bin/sh
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_default_level <--
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_debug_level_debug <--
+2019-12-17 11:19:17+0100 [DEBUG -] Dummy message
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_debug_level_info <--
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_debug_level_warning <--
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_info_level_debug <--
+2019-12-17 11:19:17+0100 [INFO -] Dummy message
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_info_level_info <--
+2019-12-17 11:19:17+0100 [INFO -] Dummy message
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_info_level_warning <--
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_warning_level_debug <--
+2019-12-17 11:19:17+0100 [WARNING -] Dummy message
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_warning_level_info <--
+2019-12-17 11:19:17+0100 [WARNING -] Dummy message
+2019-12-17 11:19:17+0100 [-] --> comet.log.test.test_log.test_comet_logging.test_log_warning_level_warning <--
+2019-12-17 11:19:17+0100 [WARNING -] Dummy message
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventprinter.EventPrinterTestCase.test_interface <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventprinter.EventPrinterTestCase.test_name <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventprinter.EventPrinterTestCase.test_print_event <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventFileTestCase.test_dup_file <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventFileTestCase.test_file_contents <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventFileTestCase.test_file_created <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventFileTestCase.test_temp_dir <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventWriterTestCase.test_create_directory <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventWriterTestCase.test_custom_directory <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventWriterTestCase.test_interface <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventWriterTestCase.test_name <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.EventWriterTestCase.test_save_event <--
+2019-12-17 11:19:17+0100 [-] --> comet.plugins.test.test_eventwriter.StringToFilenameTestCase.test_characters <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.ElementSenderTestCase.test_lengthLimitExceeded <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.ElementSenderTestCase.test_send_xml <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.EventHandlerTestCase.test_handle_event_fails <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.EventHandlerTestCase.test_handle_event_succeeds <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.EventHandlerTestCase.test_process_event_invalid_can_nak <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.EventHandlerTestCase.test_process_event_invalid_cant_nak <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.EventHandlerTestCase.test_process_event_valid_fails <--
+2019-12-17 11:19:17+0100 [WARNING -] Event handlers failed
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.EventHandlerTestCase.test_process_event_valid_succeeds <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.EventHandlerTestCase.test_validate_event_invalid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_base.EventHandlerTestCase.test_validate_event_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_messages.TransportTestCase.test_ack_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_messages.TransportTestCase.test_authenticate_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_messages.TransportTestCase.test_authenticateresponse_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_messages.TransportTestCase.test_authenticateresponse_valid_filter <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_messages.TransportTestCase.test_iamalive_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_messages.TransportTestCase.test_iamaliveresponse_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_messages.TransportTestCase.test_nak_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_messages.TransportTestCase.test_nak_with_result_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterFactoryNoTestEventsTestCase.test_DoNotSendTestEvent <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 41976
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aef59dd8>
+2019-12-17 11:19:17+0100 [-] (TCP Port 41976 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aef59dd8>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterFactoryTestCase.test_protocol <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 41552
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aef622e8>
+2019-12-17 11:19:17+0100 [-] (TCP Port 41552 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aef622e8>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterFactoryTestCase.test_sendIamAlive <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 36719
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed8fcc0>
+2019-12-17 11:19:17+0100 [-] (TCP Port 36719 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed8fcc0>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterFactoryTestCase.test_sendTestEvent <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 39906
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed8fd68>
+2019-12-17 11:19:17+0100 [-] (TCP Port 39906 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed8fd68>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_alive_timeout <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 35724
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aef96470>
+2019-12-17 11:19:17+0100 [-] (TCP Port 35724 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aef96470>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_lack_of_ack <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 38139
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed9e860>
+2019-12-17 11:19:17+0100 [-] (TCP Port 38139 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed9e860>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_receive_ack <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 36324
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed8fa20>
+2019-12-17 11:19:17+0100 [-] (TCP Port 36324 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed8fa20>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_receive_authenticateresponse_legacy <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 43238
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed8f128>
+2019-12-17 11:19:17+0100 [-] (TCP Port 43238 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed8f128>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_receive_authenticateresponse_with_bad_filter <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 35780
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed84048>
+2019-12-17 11:19:17+0100 [-] (TCP Port 35780 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed84048>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_receive_authenticateresponse_with_filters <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 35311
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed9ec88>
+2019-12-17 11:19:17+0100 [-] (TCP Port 35311 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed9ec88>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_receive_iamalive <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 44061
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aeda34e0>
+2019-12-17 11:19:17+0100 [-] (TCP Port 44061 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aeda34e0>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_receive_incomprehensible <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 40024
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aeda3a20>
+2019-12-17 11:19:17+0100 [WARNING -] Incomprehensible data received from IPv4Address(type='TCP', host='192.168.1.1', port=54321) (role=None)
+2019-12-17 11:19:17+0100 [-] (TCP Port 40024 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aeda3a20>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_receive_nak <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 33598
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aeda3e10>
+2019-12-17 11:19:17+0100 [-] (TCP Port 33598 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aeda3e10>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_receive_unparsable <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 36684
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aeda3e48>
+2019-12-17 11:19:17+0100 [WARNING -] Unparsable message received
+2019-12-17 11:19:17+0100 [-] (TCP Port 36684 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aeda3e48>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_register_broadcaster <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 41656
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed289b0>
+2019-12-17 11:19:17+0100 [-] (TCP Port 41656 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed289b0>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_sendIAmAlive <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 35838
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed28dd8>
+2019-12-17 11:19:17+0100 [-] (TCP Port 35838 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed28dd8>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_send_event <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 42841
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed28da0>
+2019-12-17 11:19:17+0100 [-] (TCP Port 42841 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed28da0>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_send_event_with_filter_accept <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 46302
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed28d30>
+2019-12-17 11:19:17+0100 [-] (TCP Port 46302 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed28d30>
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_send_event_with_filter_reject <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 45908
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aef59dd8>
+2019-12-17 11:19:17+0100 [-] (TCP Port 45908 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aef59dd8>
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventbroadcaster.VOEventBroadcasterTestCase.test_sent_authenticate <--
+2019-12-17 11:19:17+0100 [-] VOEventBroadcasterFactory starting on 34851
+2019-12-17 11:19:17+0100 [-] Starting factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed84f60>
+2019-12-17 11:19:17+0100 [-] (TCP Port 34851 Closed)
+2019-12-17 11:19:17+0100 [-] Stopping factory <comet.protocol.broadcaster.VOEventBroadcasterFactory object at 0x7f68aed84f60>
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventreceiver.VOEventReceiverFactoryTestCase.test_contents <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventreceiver.VOEventReceiverFactoryTestCase.test_protocol <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventreceiver.VOEventReceiverTestCase.test_receive_incomprehensible <--
+2019-12-17 11:19:17+0100 [WARNING -] Incomprehensible data received from IPv4Address(type='TCP', host='192.168.1.1', port=54321) (role=None)
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventreceiver.VOEventReceiverTestCase.test_receive_unparsable <--
+2019-12-17 11:19:17+0100 [WARNING -] Unparsable message received from IPv4Address(type='TCP', host='192.168.1.1', port=54321)
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventreceiver.VOEventReceiverTestCase.test_receive_voevent <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventreceiver.VOEventReceiverTestCase.test_receive_voevent_invalid <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventreceiver.VOEventReceiverTestCase.test_timeout <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsender.VOEventSenderFactoryTestCase.test_no_ack <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsender.VOEventSenderFactoryTestCase.test_protocol <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsender.VOEventSenderFactoryTestCase.test_stored_event <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsender.VOEventSenderTestCase.test_connectionMade <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsender.VOEventSenderTestCase.test_receive_ack <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsender.VOEventSenderTestCase.test_receive_incomprehensible <--
+2019-12-17 11:19:17+0100 [WARNING -] Incomprehensible data received from IPv4Address(type='TCP', host='192.168.1.1', port=54321) (role=None)
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsender.VOEventSenderTestCase.test_receive_nak <--
+2019-12-17 11:19:17+0100 [WARNING -] Nak received: IPv4Address(type='TCP', host='192.168.1.1', port=54321) refused to accept VOEvent (no reason given)
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsender.VOEventSenderTestCase.test_receive_unparsable <--
+2019-12-17 11:19:17+0100 [WARNING -] Unparsable message received from IPv4Address(type='TCP', host='192.168.1.1', port=54321)
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberFactoryTestCase.test_protocol <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberFactoryTestCase.test_reconnect_delay <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberTimeoutTestCase.test_timeout <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithID.test_receive_authenticate <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithID.test_receive_iamalive <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithID.test_receive_incomprehensible <--
+2019-12-17 11:19:17+0100 [WARNING -] Incomprehensible data received from IPv4Address(type='TCP', host='192.168.1.1', port=54321) (role=None)
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithID.test_receive_invalid_voevent <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithID.test_receive_unparsable <--
+2019-12-17 11:19:17+0100 [WARNING -] Unparsable message received
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithID.test_receive_valid_voevent <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithoutID.test_receive_authenticate <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithoutID.test_receive_iamalive <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithoutID.test_receive_incomprehensible <--
+2019-12-17 11:19:17+0100 [WARNING -] Incomprehensible data received from IPv4Address(type='TCP', host='192.168.1.1', port=54321) (role=None)
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithoutID.test_receive_invalid_voevent <--
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithoutID.test_receive_unparsable <--
+2019-12-17 11:19:17+0100 [WARNING -] Unparsable message received
+2019-12-17 11:19:17+0100 [-] --> comet.protocol.test.test_voeventsubscriber.VOEventSubscriberWithoutID.test_receive_valid_voevent <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_action_non_extant <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_args_for_disabled_plugin <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_cmd <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_default_broadcast_whitelist <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_default_submission_whitelist <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_enable_broadcast <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_enable_receive <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_faulty_cmd_line <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_filters <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_has_print_event_plugin <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_has_save_event_plugin <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_invalid_filter <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_invalid_ivoid <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_ivoid_missing <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_populated_broadcast_whitelist <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_populated_submission_whitelist <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_remotes <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_save_event_plugin_takes_args <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_test_event_loop <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_valid_ivoid <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_verbose_contradictory <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_verbose_default <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_verbose_quiet <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.DefaultOptionsTestCase.test_verbose_verbose <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.ServiceTestCase.test_has_receiver <--
+2019-12-17 11:19:17+0100 [-] --> comet.service.test.test_broker.ServiceTestCase.test_no_service <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_bad_ivoid <--
+2019-12-17 11:19:17+0100 [WARNING -] Unparseable IVOID; failing eventdb lookup
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_dir_is_file <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_dir_is_unusable <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_non_existing_dir <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_prune <--
+2019-12-17 11:19:17+0100 [INFO -] Whitelisting 1.2.3.4/32 for subscription
+2019-12-17 11:19:17+0100 [INFO -] Whitelisting 4.3.2.1/255.255.0.0 for subscription
+2019-12-17 11:19:17+0100 [INFO -] Whitelisting 1.2.3.4/32 for submission
+2019-12-17 11:19:17+0100 [INFO -] Whitelisting 4.3.2.1/255.255.0.0 for submission
+2019-12-17 11:19:17+0100 [INFO -] Subscribing to remote broker dummy_0:0
+2019-12-17 11:19:17+0100 [INFO -] Subscribing to remote broker dummy_1:8099
+2019-12-17 11:19:17+0100 [INFO -] Subscribing to remote broker dummy:8099
+2019-12-17 11:19:17+0100 [INFO -] Expiring 1 events from _test
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_prune_bad_event <--
+2019-12-17 11:19:17+0100 [WARNING -] Unparseable IVOID; failing eventdb lookup
+2019-12-17 11:19:17+0100 [WARNING -] Unparseable IVOID; failing eventdb lookup
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_seen <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_threadsafe <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_event_db.Event_DB_TestCase.test_unseen <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_voevent.broker_test_messageTestCase.test_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_voevent.parse_ivoidTestCase.test_authority_id <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_voevent.parse_ivoidTestCase.test_fragment <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_voevent.parse_ivoidTestCase.test_ivoid2_examples <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_voevent.parse_ivoidTestCase.test_no_fragment <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_voevent.parse_ivoidTestCase.test_partial_ivoid <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_voevent.parse_ivoidTestCase.test_resource_key <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_voevent.parse_ivoidTestCase.test_simple <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_whitelist.WhitelistingFactoryTestCase.test_empty_whitelist <--
+2019-12-17 11:19:17+0100 [INFO -] Attempted connection from non-whitelisted IPv4Address(type='TCP', host='127.0.0.1', port=0)
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_whitelist.WhitelistingFactoryTestCase.test_in_whitelist <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_whitelist.WhitelistingFactoryTestCase.test_log_message <--
+2019-12-17 11:19:17+0100 [INFO -] Attempted test-1234 from non-whitelisted IPv4Address(type='TCP', host='127.0.0.2', port=0)
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_whitelist.WhitelistingFactoryTestCase.test_not_in_whitelist <--
+2019-12-17 11:19:17+0100 [INFO -] Attempted connection from non-whitelisted IPv4Address(type='TCP', host='127.0.0.2', port=0)
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.mutable_element_tests.test_transform_element <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.mutable_element_tests.test_transform_text <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_document_encoding.test_encoding_detection <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_document_encoding.test_from_unicode <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_document_from_element_TestCase.test_element <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_document_from_element_TestCase.test_signature <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_document_from_element_TestCase.test_text <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_document_from_string_TestCase.test_element <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_document_from_string_TestCase.test_signature <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_document_from_string_TestCase.test_text <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_security_TestCase.test_billion_laughs <--
+2019-12-17 11:19:17+0100 [-] --> comet.utility.test.test_xml.xml_security_TestCase.test_quadratic_blowup <--
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_ivoid.CheckSchemaTestCase.test_interface <--
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_ivoid.CheckSchemaTestCase.test_invalid <--
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_ivoid.CheckSchemaTestCase.test_valid <--
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_previously_seen.CheckPreviouslySeenTestCase.test_db_failure <--
+2019-12-17 11:19:17+0100 [WARNING -] Event DB lookup failed!
+2019-12-17 11:19:17+0100 [WARNING -] Traceback (most recent call last):
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/threading.py", line 916, in _bootstrap_inner
+	    self.run()
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/threading.py", line 864, in run
+	    self._target(*self._args, **self._kwargs)
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/site-packages/twisted/_threads/_threadworker.py", line 46, in work
+	    task()
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/site-packages/twisted/_threads/_team.py", line 190, in doWork
+	    task()
+	--- <exception caught here> ---
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/site-packages/twisted/python/threadpool.py", line 250, in inContext
+	    result = inContext.theWork()
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/site-packages/twisted/python/threadpool.py", line 266, in <lambda>
+	    inContext.theWork = lambda: context.call(ctx, func, *args, **kw)
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/site-packages/twisted/python/context.py", line 122, in callWithContext
+	    return self.currentContext().callWithContext(ctx, func, *args, **kw)
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/site-packages/twisted/python/context.py", line 85, in callWithContext
+	    return func(*args,**kw)
+	  File "/mnt/guanabana/raid/home/ven071/myCondaEnv/lib/python3.6/site-packages/comet/validator/test/test_previously_seen.py", line 33, in mock_check_event
+	    raise LookupError('Simulated DB failure.')
+	builtins.LookupError: Simulated DB failure.
+	
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_previously_seen.CheckPreviouslySeenTestCase.test_interface <--
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_previously_seen.CheckPreviouslySeenTestCase.test_previously_checked <--
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_previously_seen.CheckPreviouslySeenTestCase.test_unseen <--
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_schema.CheckSchemaTestCase.test_interface <--
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_schema.CheckSchemaTestCase.test_invalid <--
+2019-12-17 11:19:17+0100 [-] Main loop terminated.
+2019-12-17 11:19:17+0100 [-] --> comet.validator.test.test_schema.CheckSchemaTestCase.test_valid <--
+2019-12-17 11:19:17+0100 [-] Main loop terminated.

@@ -5,7 +5,6 @@ import numpy as np
 import os
 import mahotas as mh
 import cv2
-from detectron2.structures import BoxMode
 import itertools
 import matplotlib as plt
 import scipy.misc
@@ -83,8 +82,8 @@ with open("../Data/labels/train.txt","w") as file:
 
             # Save masks and animal images
             im = Image.fromarray(mask_animals)
-            im.save('../Data/masks/' + image_name)
-            output_image = "../Data/images_with_animals/" + image_name 
+            im.save('../Data/masks/train/' + image_name)
+            output_image = "../Data/only_animal_images/train/" + image_name 
             shutil.copyfile(input_image, output_image)
         
 
@@ -112,13 +111,13 @@ print("\n Train images done \n")
 
 
 
-# Set val locations
-input_location = "../Data/images/val/"  #+ "/test/"
-input_location_s = "../Data/semantic/val/"  #+ "/test/"
+# Set test locations
+input_location = "../Data/images/test/"  #+ "/test/"
+input_location_s = "../Data/semantic/test/"  #+ "/test/"
 bad_image_list = []
 
 # Run over semantic files and create ground truth test
-with open("../Data/labels/val.txt","w") as file: 
+with open("../Data/labels/test.txt","w") as file: 
     for image_name in os.listdir(input_location_s): # + "/test"
 
         if image_name == "test":
@@ -161,8 +160,8 @@ with open("../Data/labels/val.txt","w") as file:
 
             # Save masks and animal images
             im = Image.fromarray(mask_animals)
-            im.save('../Data/masks/' + image_name)
-            output_image = "../Data/images_with_animals/" + image_name 
+            im.save('../Data/masks/val/' + image_name)
+            output_image = "../Data/only_animal_images/val/" + image_name 
             shutil.copyfile(input_image, output_image)
         
 
@@ -186,29 +185,5 @@ with open("../Data/labels/val.txt","w") as file:
 
 # Deletes images that have innapropriate compositions in them
 remove_bad_images(bad_image_list,input_location,input_location_s)
-print("\n Val images done \n")
+print("\n test images done \n")
 
-
-
-
-
-# Create dicts for dataloader
-#get_animal_dicts(input_location , input_location_s , Detectron2_bbox_dict)
-
-# from detectron2.data import DatasetCatalog, MetadataCatalog
-# for d in ["2019-11/test/"]:
-#     DatasetCatalog.register("../Data/images/" + d, lambda d=d: get_animal_dicts(input_location, input_location_s, Detectron2_bbox_dict))
-#     MetadataCatalog.get("../Data/images/" + d).set(thing_classes=["animal"])
-#     MetadataCatalog.get("../Data/images/" + d).set(stuff_classes=["background"])
-# animal_metadata = MetadataCatalog.get(input_location)
-
-# import random
-
-
-# dataset_dicts = get_animal_dicts("../Data/images/2019-11/test/", "../Data/semantic/2019-11/test/", Detectron2_bbox_dict)
-# print(dataset_dicts)
-# for e in random.sample(dataset_dicts, 1):
-#     img = cv2.imread(e["file_name"])
-#     visualizer = Visualizer(img[:, :, ::-1], metadata=animal_metadata, scale=0.5)
-#     vis = visualizer.draw_dataset_dict(e)
-#     cv2.imshow(e,vis.get_image()[:, :, ::-1],)
