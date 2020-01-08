@@ -20,11 +20,10 @@ from datagen import ListDataset
 
 from torch.autograd import Variable
 from torchsummary import summary
-#experiment = Experiment(api_key = "dWZFGTbFA4MerKRqXNpWjLh07", project_name = "general", workspace = "derekvdven")
-#experiment.set_name("60m_6")
+experiment = Experiment(api_key = "dWZFGTbFA4MerKRqXNpWjLh07", project_name = "general", workspace = "derekvdven")
+experiment.set_name("60m_6")
 
 dist = "60m/"
-#### no pretrained net.py is used this time ####
 
 #parameters: 
 batchsize = 2
@@ -64,6 +63,20 @@ net = RetinaNet(num_classes=2)
 #net.load_state_dict(torch.load('./model/net.pth')) #(net.pth is trained with 20 classes so I cannot load it and use it..)
 print(net)
 
+ordered_state_dict = torch.load("./model/net.pth")
+
+print(ordered_state_dict["cls_head.8.weight"].size())
+ordered_state_dict["cls_head.8.weight"] = ordered_state_dict["cls_head.8.weight"][0:18]
+print(ordered_state_dict["cls_head.8.weight"].size())
+
+print(ordered_state_dict["cls_head.8.bias"].size())
+ordered_state_dict["cls_head.8.bias"] = ordered_state_dict["cls_head.8.bias"][0:18]
+print(ordered_state_dict["cls_head.8.bias"].size())
+
+print(ordered_state_dict["cls_head.8.weight"].size())
+net.load_state_dict(ordered_state_dict)
+
+
 if args.resume:
     print('==> Resuming from checkpoint..')
     checkpoint = torch.load('./checkpoint/'+ checkpoint_name + ".pth")
@@ -75,8 +88,13 @@ net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 net.cuda()
 
 print(summary(net,(3,512,512)))
+
 # load net loadstatedict to change conv2d441 from 180 to 18 and then it should work? 
-net.classifier[441] = nn.conv2d[-1,18,4,4]
+#load_dict = torch.load('./model/net.pth')
+#for x in load_dict:
+#    print(x)
+#net.load_state_dict(load_dict)
+#net.classifier[441] = conv2d [-1,18,4,4]
 
 
 
