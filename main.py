@@ -17,10 +17,11 @@ import statistics as st
 # Import functions
 from Functions import create_dirs, check_sky, mask_seg, count_animals, smooth_animals, plot_image, get_centers_through_borders, get_bboxes, write_file, remove_bad_images
 
+# 60m: minimum animal size = 20?
 
 # Set parameters
 sigma = 2
-minimum_animal_size = 10
+minimum_animal_size = 20
 kernel = (5,5)
 date = "2019-11/"
 width = 512
@@ -70,9 +71,7 @@ with open("../Data/labels/train.txt","w") as file:
 
         
         # Count animals, if no animals are present, skip image
-        labeled_animals, nr_objects, mask_animals = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel)
-        #plt.image.imsave('../Data/masks/2019-11/' + image_name, mask_animals)
-        #scipy.misc.imsave('../Data/masks/2019-11/' + image_name, mask_animals)
+        labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel,plot = True)
         
         if nr_objects == 0:
             print("Zero animals in this picture, not adding file information to labels file", "\n")
@@ -80,9 +79,7 @@ with open("../Data/labels/train.txt","w") as file:
         else:
             print("animals found")
 
-            # Save masks and animal images
-            im = Image.fromarray(mask_animals)
-            im.save('../Data/masks/train/' + image_name)
+            # Save animal images
             output_image = "../Data/only_animal_images/train/" + image_name 
             shutil.copyfile(input_image, output_image)
         
@@ -148,9 +145,7 @@ with open("../Data/labels/test.txt","w") as file:
 
         
         # Count animals, if no animals are present, skip image
-        labeled_animals, nr_objects, mask_animals = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel)
-        #plt.image.imsave('../Data/masks/2019-11/' + image_name, mask_animals)
-        #scipy.misc.imsave('../Data/masks/2019-11/' + image_name, mask_animals)
+        labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel)
         
         if nr_objects == 0:
             print("Zero animals in this picture, not adding file information to labels file", "\n")
@@ -158,9 +153,7 @@ with open("../Data/labels/test.txt","w") as file:
         else:
             print("animals found")
 
-            # Save masks and animal images
-            im = Image.fromarray(mask_animals)
-            im.save('../Data/masks/val/' + image_name)
+            # Save animal images
             output_image = "../Data/only_animal_images/val/" + image_name 
             shutil.copyfile(input_image, output_image)
         
@@ -186,4 +179,5 @@ with open("../Data/labels/test.txt","w") as file:
 # Deletes images that have innapropriate compositions in them
 remove_bad_images(bad_image_list,input_location,input_location_s)
 print("\n test images done \n")
+
 
