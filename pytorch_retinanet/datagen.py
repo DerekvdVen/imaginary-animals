@@ -14,7 +14,7 @@ import torch
 import torch.utils.data as data
 import torchvision.transforms as transforms
 
-from PIL import Image
+from PIL import Image, ImageDraw
 from encoder import DataEncoder # .encoder
 from transform import resize, random_flip, random_crop, center_crop # .transform
 from utils import change_box_order
@@ -178,7 +178,7 @@ class ListDataset(data.Dataset):
         labels = self.labels[idx]
         size = self.input_size
 
-        # Data augmentation.
+        # Data augmentation. TOdo: add blurring (scikit)
         if self.train:
             img, boxes = random_flip(img, boxes)
             img, boxes = random_crop(img, boxes)
@@ -186,7 +186,21 @@ class ListDataset(data.Dataset):
         else:
             img, boxes = resize(img, boxes, size)
             img, boxes = center_crop(img, boxes, (size,size))
+        
+        # TODo: visualise image and bounding boxes and check, it should be left top right bottom
+        # add 30 meter renderings to the training and test dataset
+        
+        draw = ImageDraw.Draw(img)
 
+        print(boxes)
+        for box in boxes:
+            draw.rectangle(list(box), outline='red')
+        img.show()
+        import pylab
+        pylab.imshow(img)
+        pylab.show()
+    
+        
         img = self.transform(img)
         return img, boxes, labels
     

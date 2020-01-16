@@ -21,14 +21,14 @@ from datagen import ListDataset
 from torch.autograd import Variable
 from torchsummary import summary
 experiment = Experiment(api_key = "dWZFGTbFA4MerKRqXNpWjLh07", project_name = "general", workspace = "derekvdven")
-experiment.set_name("60m_6")
+experiment.set_name("60m_11_bb")
 
 dist = "60m/"
 
 #parameters: 
-batchsize = 2
-n_epochs = 200
-checkpoint_name = "60m_ckpt6"
+batchsize = 16
+n_epochs = 60
+checkpoint_name = "60m_ckpt11"
 train_loss_list = []
 test_loss_list = []
 
@@ -87,14 +87,7 @@ if args.resume:
 net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 net.cuda()
 
-print(summary(net,(3,512,512)))
-
-# load net loadstatedict to change conv2d441 from 180 to 18 and then it should work? 
-#load_dict = torch.load('./model/net.pth')
-#for x in load_dict:
-#    print(x)
-#net.load_state_dict(load_dict)
-#net.classifier[441] = conv2d [-1,18,4,4]
+print("summary",summary(net,(3,512,512)))
 
 
 
@@ -111,7 +104,7 @@ def train(epoch):
         inputs = Variable(inputs.cuda())
         loc_targets = Variable(loc_targets.cuda())
         cls_targets = Variable(cls_targets.cuda())
-
+        
         optimizer.zero_grad()
         loc_preds, cls_preds = net(inputs)
         loss = criterion(loc_preds, loc_targets, cls_preds, cls_targets)

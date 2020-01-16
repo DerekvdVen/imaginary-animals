@@ -37,14 +37,15 @@ appendConfidences = False
 
 #other stuff
 imageSize = (4000,3000)
-shardsize = (512,512)
+shardsize = (600,600)
 stride = 1
 batchSize = 1
-minConfidence = 0.05
+minConfidence = 0.1
 nms_iou = 0.5
 colors = [(1.0, 0.0, 0.0), (0.0, 0.0, 1.0)]
+checkpoint = "60m_10"
 #data_root = 
-#save_dir = 
+#save_dir = "../../output/output_images/" + checkpoint
 
 # Data
 print('==> Preparing data..')
@@ -118,8 +119,8 @@ def inference(dataSet, model):
         confs = confs[keep,:]
         scores = scores[keep]
         # update progress bar
-        tBar.set_description_str('# Pred: {}'.format(bboxes.size(0)))
-        tBar.update(1)
+        #tBar.set_description_str('# Pred: {}'.format(bboxes.size(0)))
+        #tBar.update(1)
         # visualize
         if visualize:  # and len(bboxes):
             plt.figure(1)
@@ -138,7 +139,12 @@ def inference(dataSet, model):
                 plt.text(bboxes[b,0], bboxes[b,1], '{:.2f}'.format(scores[b]))
             plt.title('[{}/{}] {}'.format(idx, len(dataSet), imgPath))
             plt.draw()
-            plt.waitforbuttonpress()
+            #plt.waitforbuttonpress()
+
+            import pylab
+            pylab.imshow(img)
+            pylab.show()
+            
         # save
         if savePredictions and len(bboxes):
             sz = img.size

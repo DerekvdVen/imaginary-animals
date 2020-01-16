@@ -22,9 +22,9 @@ from encoder import DataEncoder
 
 from inference import inference
 
-checkpoint_name = "60m_ckpt5"
+checkpoint_name = "60m_ckpt10"
 dist = "60m/"
-batchsize = 2
+batchsize = 1
 val_loss_list = []
 
 parser = argparse.ArgumentParser(description='PyTorch RetinaNet Training')
@@ -62,7 +62,7 @@ if args.resume:
     net.load_state_dict(checkpoint['net'])
     best_loss = checkpoint['loss']
     start_epoch = checkpoint['epoch']
-net.eval()
+#net.eval()
 
 #net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 net.cuda()

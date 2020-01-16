@@ -10,7 +10,7 @@ from Kuzikus_bigImageValidation import evalOnBigTensor
 import os
 
 #imports
-checkpoint = "60m_ckpt3"
+checkpoint = "60m_ckpt10"
 
 #dir = "/mnt/guanabana/raid/data/datasets/Kuzikus/SAVMAP/data/raster/ebee/2014-05/20140515_11_rgb/img/"
 outdir = '../../output/output_images/' + checkpoint
@@ -19,7 +19,7 @@ dir = "../../Data/real/"
 # "/mnt/guanabana/raid/data/datasets/Kuzikus/SAVMAP/data/raster/ebee/2014-05/20140515_11_rgb/img/"
 
 print('Loading model..')
-net = RetinaNet()
+net = RetinaNet(num_classes=2)
 net.load_state_dict(torch.load('./checkpoint/' + checkpoint + ".pth")['net'])
 net.eval()
 
