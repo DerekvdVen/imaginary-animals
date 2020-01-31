@@ -4,9 +4,9 @@ import numpy as np
 import statistics as st
 from shutil import copyfile
 
-dist = "60m"
+dist = "60m30m"
 
-def get_test_train(dir,copydir,amount_of_stdv = 2):
+def get_test_train(dir,copydir,amount_of_stdv = 1):
 
 
     pattern = re.compile("(?<=\_)(.*?)(?=\.)")
@@ -56,7 +56,7 @@ def remove_copy(dir,segdir):
     print(len(train))
 
 # Create training and test sets
-test, train = get_test_train("../Data/only_animal_images/all/" + dist, "../Data/images/all/" + dist, amount_of_stdv = 1)
+test, train = get_test_train("../Data/only_animal_images/all/" + dist, "../Data/images/all/" + dist, amount_of_stdv = 2)
 
 # Copy train and test datasets to correct locations
 remove_copy("../Data/images/all/" + dist + "/","../Data/semantic/all/" + dist + "/")

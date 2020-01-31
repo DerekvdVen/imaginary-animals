@@ -12,6 +12,8 @@ from PIL import Image
 import shutil
 import re
 import statistics as st
+from PIL import Image, ImageDraw
+import pylab
 
 
 # Import functions
@@ -27,6 +29,8 @@ date = "2019-11/"
 width = 512
 height= 512
 output_location = "../Data/labels/" + date #+ "/"
+
+plotbool = False
 
 
 # Create the data directories
@@ -71,17 +75,17 @@ with open("../Data/labels/train.txt","w") as file:
 
         
         # Count animals, if no animals are present, skip image
-        labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel,plot = True)
+        labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel,plot = plotbool)
         
         if nr_objects == 0:
             print("Zero animals in this picture, not adding file information to labels file", "\n")
             continue
-        else:
-            print("animals found")
+        # else:
+        #     print("animals found")
 
-            # Save animal images
-            output_image = "../Data/only_animal_images/train/" + image_name 
-            shutil.copyfile(input_image, output_image)
+        #     # Save animal images
+        #     output_image = "../Data/only_animal_images/train/" + image_name 
+        #     shutil.copyfile(input_image, output_image)
         
 
         # Get centers of animals using boundaries
@@ -101,7 +105,23 @@ with open("../Data/labels/train.txt","w") as file:
             annotations += (' ' + str(dicto.get('x0')) + ' ' + str(dicto.get('y0')) + ' ' + str(dicto.get('x1')) + ' ' + str(dicto.get('y1')) + ' ' + "1" + ' ')
         file.write(image_name + annotations)
         file.write("\n")
+        
+        # img = Image.open(input_image)
+        # if img.mode != 'RGB':
+        #     img = img.convert('RGB')
+        # draw = ImageDraw.Draw(img)
 
+        # print(annotations)
+        # #for box in annotations:
+        # #    draw.rectangle(list(box), outline='red')
+        # img.show()
+        # import pylab
+        # pylab.imshow(img)
+        # pylab.show()
+
+        print("img", image_name)
+        print("img_s", input_image_s)
+        #plot_image(input_image_s)
 # Deletes images that have innapropriate compositions in them
 remove_bad_images(bad_image_list,input_location,input_location_s)
 print("\n Train images done \n")
@@ -145,17 +165,17 @@ with open("../Data/labels/test.txt","w") as file:
 
         
         # Count animals, if no animals are present, skip image
-        labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel)
+        labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel, plot = plotbool)
         
         if nr_objects == 0:
             print("Zero animals in this picture, not adding file information to labels file", "\n")
             continue
-        else:
-            print("animals found")
+        # else:
+        #     print("animals found")
 
-            # Save animal images
-            output_image = "../Data/only_animal_images/val/" + image_name 
-            shutil.copyfile(input_image, output_image)
+        #     # Save animal images
+        #     output_image = "../Data/only_animal_images/val/" + image_name 
+        #     shutil.copyfile(input_image, output_image)
         
 
         # Get centers of animals using boundaries

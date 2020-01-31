@@ -114,8 +114,11 @@ def smooth_animals(animals, sigma):
     
     return animals_smooth
 
+def check_for_animals(animals):
+    labeled_test, nr_objects_test = mh.label(animals)
+    return(nr_objects_test)
 
-def count_animals(animals_smooth,minimal_size,image_kernel):
+def count_animals(animals_smooth,minimal_size,image_kernel,plot):
        
         
     # count_animals thresholds the smoothed gaussian blobs and then labels and counts them. Also makes plots to show the animals.
@@ -128,7 +131,7 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
     T = mh.thresholding.otsu(animals_smooth_I)
     
     # Make a plot to compare effects of erosion and dilation
-    #labeled_test, nr_objects_test = mh.label(animals_smooth_I > T)
+    labeled_test, nr_objects_test = mh.label(animals_smooth_I > T)
     
     # Erode
     kernel = np.ones(image_kernel, np.uint8)
@@ -137,41 +140,55 @@ def count_animals(animals_smooth,minimal_size,image_kernel):
     # Label animals and print the amount
     labeled, nr_objects = mh.label(animals_erosion > T)
     print("This image contains" , nr_objects, "animals, including tiny blobs")
-    
-    # remove small sizes
-    sizes = mh.labeled.labeled_size(labeled)
-    too_small = np.where(sizes < minimal_size)
-    labeled = mh.labeled.remove_regions(labeled, too_small)
-    
-    # Relabel after removing small blobs
-    labeled, nr_objects = mh.label(labeled)
-    labeled = labeled.astype('uint8')
-    
-    # Dilate
-    labeled = cv2.dilate(labeled, kernel, iterations = 1)
-    print("This image contains" , nr_objects, "animals, excluding tiny blobs")
 
-    #print(np.unique(labeled))
-    mask = copy.copy(labeled)
-    mask[mask > 0] = 1
+
+    if nr_objects != 0:
+        
+        if plot == True:
+            pylab.imshow(labeled)
+            pylab.jet()
+            pylab.show()
+
+        # remove small sizes
+        sizes = mh.labeled.labeled_size(labeled)
+        too_small = np.where(sizes < minimal_size)
+        labeled = mh.labeled.remove_regions(labeled, too_small)
+        print("without small blobs")
+        if plot == True:
+            pylab.imshow(labeled)
+            pylab.jet()
+            pylab.show()
+
+        # remove blobs touching the border
+        print("without border blobs")
+        labeled = mh.labeled.remove_bordering(labeled)
+        if plot == True:
+            pylab.imshow(labeled)
+            pylab.jet()
+            pylab.show()
+
+        # Relabel after removing small blobs
+        labeled, nr_objects = mh.label(labeled)
+        labeled = labeled.astype('uint8')
+        
+        # Dilate
+        labeled = cv2.dilate(labeled, kernel, iterations = 1)
+        print("This image contains" , nr_objects, "animals, excluding tiny blobs")
     
-    #pylab.imshow(mask)
-    #pylab.jet()
-    #pylab.show()
-    # Plot if animals present
-    # if nr_objects != 0:
-    #     print("Labeled blobs before erosion")
-    #     pylab.imshow(labeled_test)
-    #     pylab.jet()
-    #     pylab.show()
+    if nr_objects != 0 and plot == True:
+        print("Labeled blobs before erosion")
+        pylab.imshow(labeled_test)
+        pylab.jet()
+        pylab.show()
         
-    #     print("Labeled blobs after dilation")
-    #     pylab.imshow(labeled)
-    #     pylab.jet()
-    #     pylab.show()
-        
-        
-    return labeled, nr_objects, mask
+        print("Labeled blobs after dilation")
+        pylab.imshow(labeled)
+        pylab.jet()
+        pylab.show()
+
+            
+            
+    return labeled, nr_objects
 
 
 def plot_image(image):
@@ -188,6 +205,7 @@ def plot_image(image):
     RGB_img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     pylab.imshow(RGB_img)
     pylab.show()
+    
   
     
 def get_centers_through_borders(labeled, nr_objects, width = 512, height = 512):
