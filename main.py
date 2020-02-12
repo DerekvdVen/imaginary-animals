@@ -23,181 +23,225 @@ from Functions import create_dirs, check_sky, mask_seg, count_animals, smooth_an
 
 # Set parameters
 sigma = 2
-minimum_animal_size = 20
-kernel = (5,5)
-date = "2019-11/"
-width = 512
-height= 512
-output_location = "../Data/labels/" + date #+ "/"
+minimum_animal_size = 25
+kernel = (7,7)
+width = height = 512
 
 plotbool = False
-
+rembordbool = False
 
 # Create the data directories
 #create_dirs()
 
-
+bad_image_list = []
 
 # Set train locations
-input_location = "../Data/images/train/"  #+ "/test/"
-input_location_s = "../Data/semantic/train/"  #+ "/test/"
-bad_image_list = []
-
-# Run over semantic files and create ground truth train
-with open("../Data/labels/train.txt","w") as file: 
-    for image_name in os.listdir(input_location_s): # + "/test"
-
-        if image_name == "test":
-            continue
-            
-            
-        # Input image from directory
-        print("###----------###" + "\n" + image_name + "\n" + "###----------###" + "\n")
-        input_image_s = input_location_s + image_name
-        input_image = input_location + image_name
-        
-        
-        # If image contains sky, i.e. it's under the ground level, continue, else, write the file to the 00_SPLIT file
-        if check_sky(input_image_s) == True:
-            print("Warning, image contains sky. Removing from set.")
-            bad_image_list.append(image_name)
-            continue
-        
-        
-        
-        # Mask everything but animals in image
-        animals, mask = mask_seg(input_image_s)
-
-
-        
-        # Smooth animals with gaussian and remove tiny animals less than set size
-        animals_smooth = smooth_animals(animals, sigma = sigma)
-
-        
-        # Count animals, if no animals are present, skip image
-        labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel,plot = plotbool)
-        
-        if nr_objects == 0:
-            print("Zero animals in this picture, not adding file information to labels file", "\n")
-            continue
-        # else:
-        #     print("animals found")
-
-        #     # Save animal images
-        #     output_image = "../Data/only_animal_images/train/" + image_name 
-        #     shutil.copyfile(input_image, output_image)
-        
-
-        # Get centers of animals using boundaries
-        centers_list = get_centers_through_borders(labeled_animals, nr_objects, width = width, height = height)
-        
-        
-        # Get bboxes of animals in image
-        #centers_list = get_centers(animals_smooth,clean_distance = clean_distance) # old
-        bbox_list, bbox_dict_list = get_bboxes(labeled_animals, width = width, height = height)
-
-        
-        # Output centers and bboxes
-        write_file(output_location,image_name,centers_list,bbox_list)
-
-        annotations = ''
-        for dicto in bbox_dict_list:
-            annotations += (' ' + str(dicto.get('x0')) + ' ' + str(dicto.get('y0')) + ' ' + str(dicto.get('x1')) + ' ' + str(dicto.get('y1')) + ' ' + "1" + ' ')
-        file.write(image_name + annotations)
-        file.write("\n")
-        
-        # img = Image.open(input_image)
-        # if img.mode != 'RGB':
-        #     img = img.convert('RGB')
-        # draw = ImageDraw.Draw(img)
-
-        # print(annotations)
-        # #for box in annotations:
-        # #    draw.rectangle(list(box), outline='red')
-        # img.show()
-        # import pylab
-        # pylab.imshow(img)
-        # pylab.show()
-
-        print("img", image_name)
-        print("img_s", input_image_s)
-        #plot_image(input_image_s)
-# Deletes images that have innapropriate compositions in them
-remove_bad_images(bad_image_list,input_location,input_location_s)
-print("\n Train images done \n")
-
-
+input_location_train = "../Data/images/train/"  #+ "/test/"
+input_location_s_train = "../Data/semantic/train/"  #+ "/test/"
 
 # Set test locations
-input_location = "../Data/images/test/"  #+ "/test/"
-input_location_s = "../Data/semantic/test/"  #+ "/test/"
-bad_image_list = []
+input_location_test = "../Data/images/test/"  #+ "/test/"
+input_location_s_test = "../Data/semantic/test/"  #+ "/test/"
 
-# Run over semantic files and create ground truth test
-with open("../Data/labels/test.txt","w") as file: 
-    for image_name in os.listdir(input_location_s): # + "/test"
+# Set vallocations
+input_location_val = "../Data/images/val/"  #+ "/test/"
+input_location_s_val = "../Data/semantic/val/"  #+ "/test/"
 
-        if image_name == "test":
-            continue
+def main(label_loc,input_location,input_location_s):
+    with open(label_loc,"w") as file: 
+        for image_name in os.listdir(input_location_s): # + "/test"
+
+            if image_name == "test":
+                continue
+                
+                
+            # Input image from directory
+            print("###----------###" + "\n" + image_name + "\n" + "###----------###" + "\n")
+            input_image_s = input_location_s + image_name
+            input_image = input_location + image_name
+            
+            # If image contains sky, i.e. it's under the ground level, continue, else, write the file to the 00_SPLIT file
+            if check_sky(input_image_s) == True:
+                print("Warning, image contains sky. Removing from set.")
+                bad_image_list.append(image_name)
+                continue
+            
+            # Mask everything but animals in image
+            animals, mask = mask_seg(input_image_s)
+
+            # Smooth animals with gaussian and remove tiny animals less than set size
+            animals_smooth = smooth_animals(animals, sigma = sigma)
+
+            # Count animals, if no animals are present, skip image
+            labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel,plot = plotbool,removeborder=rembordbool)
+            
+            if nr_objects == 0:
+                print("Zero animals in this picture, not adding file information to labels file", "\n")
+                file.write(image_name)
+                file.write("\n")
+                continue
+
+            # Get centers of animals using boundaries
+            centers_list = get_centers_through_borders(labeled_animals, nr_objects, width = width, height = height)
+            
+            # Get bboxes of animals in image
+            #centers_list = get_centers(animals_smooth,clean_distance = clean_distance) # old
+            bbox_list, bbox_dict_list = get_bboxes(labeled_animals, width = width, height = height)
+
+            # Output centers and bboxes
+            #write_file(output_location,image_name,centers_list,bbox_list)
+
+            annotations = ''
+            for dicto in bbox_dict_list:
+                annotations += (' ' + str(dicto.get('x0')) + ' ' + str(dicto.get('y0')) + ' ' + str(dicto.get('x1')) + ' ' + str(dicto.get('y1')) + ' ' + "1")
+            file.write(image_name + annotations)
+            file.write("\n")
+            
+            # img = Image.open(input_image)
+            # if img.mode != 'RGB':
+            #     img = img.convert('RGB')
+            # draw = ImageDraw.Draw(img)
+
+            # print(annotations)
+            # #for box in annotations:
+            # #    draw.rectangle(list(box), outline='red')
+            # img.show()
+            # import pylab
+            # pylab.imshow(img)
+            # pylab.show()
+
+            print("img", image_name)
+            print("img_s", input_image_s)
+            #plot_image(input_image_s)
+    
+    # Deletes images that have innapropriate compositions in them
+    remove_bad_images(bad_image_list,input_location,input_location_s)
+
+main("../Data/labels/train_all.txt", input_location_train, input_location_s_train)
+main("../Data/labels/test_all.txt", input_location_test, input_location_s_test)
+main("../Data/labels/val_all.txt", input_location_val, input_location_s_val)
+
+
+
+
+# # Run over semantic files and create ground truth test
+# with open("../Data/labels/test.txt","w") as file: 
+#     for image_name in os.listdir(input_location_s): # + "/test"
+
+#         if image_name == "test":
+#             continue
             
             
-        # Input image from directory
-        print("###----------###" + "\n" + image_name + "\n" + "###----------###" + "\n")
-        input_image_s = input_location_s + image_name
-        input_image = input_location + image_name
+#         # Input image from directory
+#         print("###----------###" + "\n" + image_name + "\n" + "###----------###" + "\n")
+#         input_image_s = input_location_s + image_name
+#         input_image = input_location + image_name
         
         
-        # If image contains sky, i.e. it's under the ground level, continue, else, write the file to the 00_SPLIT file
-        if check_sky(input_image_s) == True:
-            print("Warning, image contains sky. Removing from set.")
-            bad_image_list.append(image_name)
-            continue
+#         # If image contains sky, i.e. it's under the ground level, continue, else, write the file to the 00_SPLIT file
+#         if check_sky(input_image_s) == True:
+#             print("Warning, image contains sky. Removing from set.")
+#             bad_image_list.append(image_name)
+#             continue
         
         
         
-        # Mask everything but animals in image
-        animals, mask = mask_seg(input_image_s)
+#         # Mask everything but animals in image
+#         animals, mask = mask_seg(input_image_s)
 
 
         
-        # Smooth animals with gaussian and remove tiny animals less than set size
-        animals_smooth = smooth_animals(animals, sigma = sigma)
+#         # Smooth animals with gaussian and remove tiny animals less than set size
+#         animals_smooth = smooth_animals(animals, sigma = sigma)
 
         
-        # Count animals, if no animals are present, skip image
-        labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel, plot = plotbool)
+#         # Count animals, if no animals are present, skip image
+#         labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel, plot = plotbool)
         
-        if nr_objects == 0:
-            print("Zero animals in this picture, not adding file information to labels file", "\n")
-            continue
-        # else:
-        #     print("animals found")
-
-        #     # Save animal images
-        #     output_image = "../Data/only_animal_images/val/" + image_name 
-        #     shutil.copyfile(input_image, output_image)
+#         if nr_objects == 0:
+#             print("Zero animals in this picture, not adding file information to labels file", "\n")
+#             continue
         
 
-        # Get centers of animals using boundaries
-        centers_list = get_centers_through_borders(labeled_animals, nr_objects, width = width, height = height)
+#         # Get centers of animals using boundaries
+#         centers_list = get_centers_through_borders(labeled_animals, nr_objects, width = width, height = height)
         
         
-        # Get bboxes of animals in image
-        #centers_list = get_centers(animals_smooth,clean_distance = clean_distance) # old
-        bbox_list, bbox_dict_list = get_bboxes(labeled_animals, width = width, height = height)
+#         # Get bboxes of animals in image
+#         #centers_list = get_centers(animals_smooth,clean_distance = clean_distance) # old
+#         bbox_list, bbox_dict_list = get_bboxes(labeled_animals, width = width, height = height)
 
         
-        # Output centers and bboxes
-        write_file(output_location,image_name,centers_list,bbox_list)
+#         # Output centers and bboxes
+#         write_file(output_location,image_name,centers_list,bbox_list)
 
-        annotations = ''
-        for dicto in bbox_dict_list:
-            annotations += (' ' + str(dicto.get('x0')) + ' ' + str(dicto.get('y0')) + ' ' + str(dicto.get('x1')) + ' ' + str(dicto.get('y1')) + ' ' + "1" + ' ')
-        file.write(image_name + annotations)
-        file.write("\n")
+#         annotations = ''
+#         for dicto in bbox_dict_list:
+#             annotations += (' ' + str(dicto.get('x0')) + ' ' + str(dicto.get('y0')) + ' ' + str(dicto.get('x1')) + ' ' + str(dicto.get('y1')) + ' ' + "1")
+#         file.write(image_name + annotations)
+#         file.write("\n")
 
-# Deletes images that have innapropriate compositions in them
-remove_bad_images(bad_image_list,input_location,input_location_s)
-print("\n test images done \n")
+# print("\n test images done \n")
+
+
+
+# # Run over semantic files and create ground truth val
+# with open("../Data/labels/val.txt","w") as file: 
+#     for image_name in os.listdir(input_location_s): # + "/test"
+
+#         if image_name == "test":
+#             continue
+            
+            
+#         # Input image from directory
+#         print("###----------###" + "\n" + image_name + "\n" + "###----------###" + "\n")
+#         input_image_s = input_location_s + image_name
+#         input_image = input_location + image_name
+        
+        
+#         # If image contains sky, i.e. it's under the ground level, continue, else, write the file to the 00_SPLIT file
+#         if check_sky(input_image_s) == True:
+#             print("Warning, image contains sky. Removing from set.")
+#             bad_image_list.append(image_name)
+#             continue
+        
+        
+        
+#         # Mask everything but animals in image
+#         animals, mask = mask_seg(input_image_s)
+
+
+        
+#         # Smooth animals with gaussian and remove tiny animals less than set size
+#         animals_smooth = smooth_animals(animals, sigma = sigma)
+
+        
+#         # Count animals, if no animals are present, skip image
+#         labeled_animals, nr_objects = count_animals(animals_smooth, minimal_size = minimum_animal_size,image_kernel=kernel, plot = plotbool)
+        
+#         if nr_objects == 0:
+#             print("Zero animals in this picture, not adding file information to labels file", "\n")
+#             continue
+        
+
+#         # Get centers of animals using boundaries
+#         centers_list = get_centers_through_borders(labeled_animals, nr_objects, width = width, height = height)
+        
+        
+#         # Get bboxes of animals in image
+#         #centers_list = get_centers(animals_smooth,clean_distance = clean_distance) # old
+#         bbox_list, bbox_dict_list = get_bboxes(labeled_animals, width = width, height = height)
+
+        
+#         # Output centers and bboxes
+#         write_file(output_location,image_name,centers_list,bbox_list)
+
+#         annotations = ''
+#         for dicto in bbox_dict_list:
+#             annotations += (' ' + str(dicto.get('x0')) + ' ' + str(dicto.get('y0')) + ' ' + str(dicto.get('x1')) + ' ' + str(dicto.get('y1')) + ' ' + "1")
+#         file.write(image_name + annotations)
+#         file.write("\n")
+
+
 
 
