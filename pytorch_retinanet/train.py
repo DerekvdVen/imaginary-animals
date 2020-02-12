@@ -20,22 +20,38 @@ from datagen import ListDataset
 
 from torch.autograd import Variable
 from torchsummary import summary
-experiment = Experiment(api_key = "dWZFGTbFA4MerKRqXNpWjLh07", project_name = "general", workspace = "derekvdven")
-experiment.set_name("60m_11_bb")
 
-dist = "60m/"
+import numpy as np
+
+dist = "30m/"
+#blur = 1
+#bordersfixed
+#crop works better
+# ALSO TRAINING ON NO ANIMAL IMAGES
+
+# command line arguments
+parser = argparse.ArgumentParser(description='PyTorch RetinaNet Training')
+parser.add_argument('-n', default="test1", type=str, help='run name')
+parser.add_argument('--lr', default=1e-5, type=float, help='learning rate')
+parser.add_argument('-bs', default=2, type=int, help='batchsize')
+parser.add_argument('-ne', default=10,type=int,help='number of epochs')
+parser.add_argument('-dir', default="30m",type=str,help='distance directory of images')
+parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
+args = parser.parse_args()
 
 #parameters: 
-batchsize = 16
-n_epochs = 60
-checkpoint_name = "60m_ckpt11"
+batchsize = args.bs
+n_epochs = args.ne
+checkpoint_name = args.n
+dist = args.dir
 train_loss_list = []
 test_loss_list = []
 
-parser = argparse.ArgumentParser(description='PyTorch RetinaNet Training')
-parser.add_argument('--lr', default=1e-5, type=float, help='learning rate')
-parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
-args = parser.parse_args()
+
+
+# set comet info
+experiment = Experiment(api_key = "dWZFGTbFA4MerKRqXNpWjLh07", project_name = "general", workspace = "derekvdven",display_summary = False)
+experiment.set_name(checkpoint_name)
 
 assert torch.cuda.is_available(), 'Error: CUDA not found!'
 best_loss = float('inf')  # best test loss
@@ -49,31 +65,34 @@ transform = transforms.Compose([
 ])
 
 # derek
-trainset = ListDataset(root='../../Data/images/all/60m/',
-                        list_file='../../Data/labels/train.txt', train=True, transform=transform, input_size=600)
+trainset = ListDataset(root='../../Data/images/all/' + dist + '/',
+                        list_file='../../Data/labels/train_all.txt', train=True, transform=transform, input_size=600)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=trainset.collate_fn)
 
-testset = ListDataset(root='../../Data/images/all/60m/',
-                        list_file='../../Data/labels/test.txt', train=False, transform=transform, input_size=600)
+testset = ListDataset(root='../../Data/images/all/' + dist + '/',
+                        list_file='../../Data/labels/test_all.txt', train=False, transform=transform, input_size=600)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=testset.collate_fn)
 
 
 # Model
 net = RetinaNet(num_classes=2)
 #net.load_state_dict(torch.load('./model/net.pth')) #(net.pth is trained with 20 classes so I cannot load it and use it..)
-print(net)
+#print(net)
 
 ordered_state_dict = torch.load("./model/net.pth")
 
-print(ordered_state_dict["cls_head.8.weight"].size())
-ordered_state_dict["cls_head.8.weight"] = ordered_state_dict["cls_head.8.weight"][0:18]
-print(ordered_state_dict["cls_head.8.weight"].size())
+#print(ordered_state_dict["cls_head.8.weight"].size())
+#ordered_state_dict["cls_head.8.weight"] = ordered_state_dict["cls_head.8.weight"][0:18]
+#print(ordered_state_dict["cls_head.8.weight"].size())
+ordered_state_dict["cls_head.8.weight"] = torch.from_numpy(np.random.randn(18,256,3,3)*np.sqrt(1/256)) #hexavier
+#print(ordered_state_dict["cls_head.8.weight"].size())
 
-print(ordered_state_dict["cls_head.8.bias"].size())
+#print(ordered_state_dict["cls_head.8.bias"].size())
 ordered_state_dict["cls_head.8.bias"] = ordered_state_dict["cls_head.8.bias"][0:18]
-print(ordered_state_dict["cls_head.8.bias"].size())
+#ordered_state_dict["cls_head.8.bias"] = torch.ones(18)
+#print(ordered_state_dict["cls_head.8.bias"])
 
-print(ordered_state_dict["cls_head.8.weight"].size())
+#print(ordered_state_dict["cls_head.8.weight"].size())
 net.load_state_dict(ordered_state_dict)
 
 
@@ -87,11 +106,11 @@ if args.resume:
 net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 net.cuda()
 
-print("summary",summary(net,(3,512,512)))
+#print("summary",summary(net,(3,512,512)))
 
 
 
-criterion = FocalLoss(num_classes=2)
+criterion = FocalLoss(num_classes=2, batch_size = batchsize)
 optimizer = optim.Adam(net.parameters(), lr=args.lr, weight_decay=0) #momentum=0.9,sgd
 
 # Training
@@ -156,12 +175,12 @@ for epoch in range(start_epoch, start_epoch + n_epochs):
     
     test(epoch)
 
-with open("../../output/graph_lists/" + checkpoint_name + "/train.txt","w") as file:
-    for item in train_loss_list:
-        file.write(str(item))
-        file.write("\n")
+# with open("../../output/graph_lists/" + checkpoint_name + "/train.txt","w") as file:
+#     for item in train_loss_list:
+#         file.write(str(item))
+#         file.write("\n")
 
-with open("../../output/graph_lists/" + checkpoint_name + "/test.txt","w") as file:
-    for item in test_loss_list:
-        file.write(str(item))
-        file.write("\n")
+# with open("../../output/graph_lists/" + checkpoint_name + "/test.txt","w") as file:
+#     for item in test_loss_list:
+#         file.write(str(item))
+#         file.write("\n")

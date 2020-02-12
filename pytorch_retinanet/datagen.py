@@ -16,7 +16,7 @@ import torchvision.transforms as transforms
 
 from PIL import Image, ImageDraw
 from encoder import DataEncoder # .encoder
-from transform import resize, random_flip, random_crop, center_crop # .transform
+from transform import resize, random_flip, random_crop, center_crop, blur # .transform
 from utils import change_box_order
 
 class ListDataset_val(data.Dataset):
@@ -73,6 +73,11 @@ class ListDataset_val(data.Dataset):
                 self.boxes.append(torch.Tensor(box))
                 self.labels.append(torch.LongTensor(label))
 
+            # append empty tensor if there are no animals in the image
+            else:
+                self.boxes.append(torch.empty(size=(0,4,),dtype = torch.float32))
+                self.labels.append(torch.empty(size=(0,), dtype=torch.long))
+
     def __getitem__(self, idx):
         '''Load image.
 
@@ -87,16 +92,22 @@ class ListDataset_val(data.Dataset):
         # Load image and boxes.
         fname = self.fnames[idx]
         img = Image.open(os.path.join(self.root, fname))
+        img_dir = str(os.path.join(self.root, fname))
+        #print("dir: ", img_dir)
+
         if img.mode != 'RGB':
             img = img.convert('RGB')
-
+        
         boxes = self.boxes[idx].clone()
         labels = self.labels[idx]
         size = self.input_size
-
+        #print("ground truth boxes:", boxes)
         img = self.transform(img)
-        return img, boxes, labels
+        
+            
+        return img, boxes, labels, img_dir
     
+    # I first used this and it worked, but the images were weird, so now I'm enumerating over the dataloader, that doesn't work either tho, now I use both..
     def __getitem2__(self, idx):
         '''Load image.
 
@@ -110,11 +121,12 @@ class ListDataset_val(data.Dataset):
         fname = self.fnames[idx]
         img = Image.open(os.path.join(self.root, fname))
         img_dir = str(os.path.join(self.root, fname))
-        return img, img_dir
+        return img#, img_dir
     
     def __len__(self):
         return self.num_samples
 
+# this one is for training
 class ListDataset(data.Dataset):
     def __init__(self, root, list_file, train, transform, input_size):
         '''
@@ -173,15 +185,28 @@ class ListDataset(data.Dataset):
         img = Image.open(os.path.join(self.root, fname))
         if img.mode != 'RGB':
             img = img.convert('RGB')
+        
 
         boxes = self.boxes[idx].clone()
         labels = self.labels[idx]
         size = self.input_size
 
-        # Data augmentation. TOdo: add blurring (scikit)
+        # draw = ImageDraw.Draw(img)
+
+        # for box in boxes:
+        #     draw.rectangle(list(box), outline='red')
+        # img.show()
+        # import pylab
+        # pylab.imshow(img)
+        # pylab.show()
+        
+        # Data augmentation
         if self.train:
             img, boxes = random_flip(img, boxes)
+            #print("img before: ", boxes)
             img, boxes = random_crop(img, boxes)
+            #print("img after: ", boxes)
+            img = blur(img)
             img, boxes = resize(img, boxes, (size,size))
         else:
             img, boxes = resize(img, boxes, size)
@@ -190,20 +215,21 @@ class ListDataset(data.Dataset):
         # TODo: visualise image and bounding boxes and check, it should be left top right bottom
         # add 30 meter renderings to the training and test dataset
         
-        draw = ImageDraw.Draw(img)
+        # draw = ImageDraw.Draw(img)
 
-        print(boxes)
-        for box in boxes:
-            draw.rectangle(list(box), outline='red')
-        img.show()
-        import pylab
-        pylab.imshow(img)
-        pylab.show()
+        # print(boxes)
+        # for box in boxes:
+        #     draw.rectangle(list(box), outline='red')
+        # img.show()
+        # import pylab
+        # pylab.imshow(img)
+        # pylab.show()
     
         
         img = self.transform(img)
         return img, boxes, labels
     
+    # deprecated
     def __getitem2__(self, idx):
         '''Load image.
 

@@ -8,12 +8,13 @@ from utils import one_hot_embedding # changed .utils to utils
 
 
 class FocalLoss(nn.Module):
-    def __init__(self, num_classes=20, alpha=0.25, gamma=2, classWeights=None):
+    def __init__(self, num_classes=20, alpha=0.25, gamma=2, classWeights=None, batch_size = 4):
         super(FocalLoss, self).__init__()
         self.num_classes = num_classes
         self.alpha = alpha
         self.gamma = gamma
         self.classWeights = classWeights
+        self.batch_size = batch_size
 
     def focal_loss(self, x, y, cw):
         '''Focal loss.
@@ -25,6 +26,10 @@ class FocalLoss(nn.Module):
         Return:
           (tensor) focal loss.
         '''
+        
+        # print("x: ", x.size())
+        # print("y: ", y.size())
+
         alpha = self.alpha
         gamma = self.gamma
 
@@ -34,6 +39,7 @@ class FocalLoss(nn.Module):
         if t.dim()<x.dim():
           t = t.unsqueeze(0)
 
+        
         p = x.sigmoid()
         pt = p*t + (1-p)*(1-t)         # pt = p if t > 0 else 1-p
         w = alpha*t + (1-alpha)*(1-t)  # w = alpha if t > 0 else 1-alpha
@@ -41,6 +47,17 @@ class FocalLoss(nn.Module):
 
         if cw is not None:
           w *= cw.expand_as(w)
+
+        #print("x: ", x.size())
+        #print("t: ", t.size())
+
+
+        if x.size() != t.size():
+          #batchsize = self.batch_size
+          # get first value of x and use that instead of batchsize here!
+          #print("xsize:", x.size()[0])
+          t = t.expand(x.size()[0],-1,-1) #Check with Beni if this makes sense, also check yourself
+          #print("t resized: ", t.size())
 
         return F.binary_cross_entropy_with_logits(x, t, w.detach(), reduction='sum')
 

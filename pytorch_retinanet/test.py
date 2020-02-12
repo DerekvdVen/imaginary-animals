@@ -8,13 +8,34 @@ from encoder import DataEncoder
 from PIL import Image, ImageDraw
 from Kuzikus_bigImageValidation import evalOnBigTensor
 import os
+import utils
 
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+import argparse
 #imports
-checkpoint = "60m_ckpt10"
+
+parser = argparse.ArgumentParser(description='PyTorch RetinaNet Training')
+parser.add_argument('-n', default="test1", type=str, help='checkpoint name')
+parser.add_argument('-mc', default=0.2, type=float, help='minConfidence')
+parser.add_argument('-nms_iou', default=0.2, type=float, help='nms iou')
+
+args = parser.parse_args()
+
+checkpoint = "30m_ckpt_1"
+write_to_json = True
+visualize = False
+colors = [(1.0, 0.0, 0.0), (0.0, 0.0, 1.0)]
+minConfidence = 0.2
+nms_iou = 0.5
+
+#jsons
+gt_dict = {}
+pred_dict = {}
 
 #dir = "/mnt/guanabana/raid/data/datasets/Kuzikus/SAVMAP/data/raster/ebee/2014-05/20140515_11_rgb/img/"
-outdir = '../../output/output_images/' + checkpoint
-dir = "../../Data/real/"
+#outdir = '../../output/output_images/' + checkpoint
+#dir = "../../Data/real/"
 #dir = '../../Data/only_animal_images/val/'
 # "/mnt/guanabana/raid/data/datasets/Kuzikus/SAVMAP/data/raster/ebee/2014-05/20140515_11_rgb/img/"
 
@@ -30,45 +51,126 @@ transform = transforms.Compose([
 
 
 
+
+dir = '../../Data/images/val/' # this will be where the val images are
+size = w = h = 600
+origsize = 512
 print('Loading image..')
-for img_x in os.listdir(dir):
-    image = Image.open(dir + img_x).convert('RGB')
+count = 0
+with open("../../Data/labels/val.txt") as annotations_file: # this will be where the val.txt file is. 
+    for line in annotations_file:
+        # count = count+1
+        # if count > 30:
+        #     break
 
-    # for real image test
-    # image size = 4000 3000
-    # left upper right lower
-    area = (3600, 1100, 4000, 1500)
-    image = image.crop(area)
-    
-    w = h = 600
-    image = image.resize((w,h))
-    print(image)
+        line_list = line.strip().split(' ')
+        img_x = line_list[0]
+        
+        boxesdata = line_list[1:]
+        nboxes = int(len(boxesdata)/5)
+        loc_targets = []
+        cls_targets = []
 
-    print('Predicting..')
-    x = transform(image)
-    x = x.unsqueeze(0)
-    x = Variable(x, requires_grad = False)
-    
-    #loc_preds, cls_preds = evalOnBigTensor(net, x, 512, 2)
+        # recast loc_targets to the new size image
+        for i in range(0,len(boxesdata),5):
+            loc_targets.append([round(float(j)/origsize*size,4) for j in boxesdata[i:i+4]])
+            cls_targets.append(int(boxesdata[i+4]))
 
-    loc_preds, cls_preds = net(x) # remove, for big images
+        print("loctargets: ", loc_targets)
+        print("clstargets: ", cls_targets)
+        print(img_x)
 
-    print('Decoding..')
-    encoder = DataEncoder()
-    print(loc_preds.data.squeeze())
-    boxes, labels = encoder.decode(loc_preds.data.squeeze(), cls_preds.data.squeeze(), (w,h))
-    # calculate statistics from these predicted boxes and labels, and the ground truth boxes and labels
-    
-    draw = ImageDraw.Draw(image)
+        image = Image.open(dir + img_x).convert('RGB')
+        image = image.resize((w,h))
+        
+        print('Predicting..')
+        x = transform(image)
+        x = x.unsqueeze(0)
+        x = Variable(x, requires_grad = False)
+        loc_preds, cls_preds = net(x) 
+        
+        # decode loc preds and cls preds
+        print('Decoding..')
+        encoder = DataEncoder()
+        boxes_pred_img, labels_pred_img, confs_pred_img = encoder.decode(loc_preds.data.squeeze(), cls_preds.data.squeeze(), input_size =(w,h,) ,cls_thresh = minConfidence, nms_thresh=0.5, return_conf=True)
 
-    print(boxes)
-    for box in boxes:
-        draw.rectangle(list(box), outline='red')
-    image.show()
-    image.save(outdir + 'image_' + img_x  )
+        # set empty tensors
+        bboxes = torch.empty(size=(0,4,), dtype=torch.float32)  
+        labels = torch.empty(size=(0,), dtype=torch.long)
+        confs = torch.empty(size=(0, net.num_classes,), dtype=torch.float32) 
+        scores = torch.empty(size=(0,), dtype=torch.float32)
+        
+        # add output to empty tensors
+        if len(boxes_pred_img):
+            scores_pred_img, _ = torch.max(confs_pred_img,1)
+            bboxes = torch.cat((bboxes, boxes_pred_img), dim=0)
+            labels = torch.cat((labels, labels_pred_img), dim=0)
+            confs = torch.cat((confs, confs_pred_img), dim=0)
+            scores = torch.cat((scores, scores_pred_img), dim=0)
+        
+        # perform nms
+        
+        keep = utils.box_nms(bboxes, scores, threshold= nms_iou)
+        bboxes = bboxes[keep,:]  
+        labels = labels[keep]
+        confs = confs[keep,:]
+        scores = scores[keep]
 
-    import pylab
-    pylab.imshow(image)
-    pylab.show()
-    
-    print("plot the thing")
+        # calculate statistics from these predicted boxes and labels, and the ground truth boxes and labels
+        print("boxes: ", bboxes)
+        print("scores: ",scores)
+        print("labels: ",labels)
+
+        if write_to_json:
+
+            #ground_truth_boxes
+            gt_dict[img_x] = loc_targets #tolist 
+
+            #predicted_boxes
+            tempdict = {}
+            tempdict["boxes"] = bboxes.tolist()
+            tempdict["scores"] = scores.tolist()
+            pred_dict[img_x] = tempdict
+
+        if visualize:  # and len(bboxes):
+            plt.figure(1)
+            plt.clf()
+            plt.imshow(image)
+            ax = plt.gca()
+            for c in range(len(loc_targets)):
+                ax.add_patch(
+                    Rectangle(
+                        (loc_targets[c][0], loc_targets[c][1],),
+                        loc_targets[c][2]-loc_targets[c][0], loc_targets[c][3]-loc_targets[c][1],
+                        fill=False,
+                        ec=colors[0]
+                    )
+                )
+            for b in range(bboxes.size(0)):
+                ax.add_patch(
+                    Rectangle(
+                        (bboxes[b,0], bboxes[b,1],),
+                        bboxes[b,2]-bboxes[b,0], bboxes[b,3]-bboxes[b,1],
+                        fill=False,
+                        ec=colors[labels[b]]
+                    )
+                )
+                plt.text(bboxes[b,0], bboxes[b,1], '{:.2f}'.format(scores[b]))
+            #plt.title('[{}/{}] {}'.format(idx, len(dataSet), imgPath))
+            plt.draw()
+            #plt.waitforbuttonpress()
+
+            import pylab
+            pylab.imshow(image)
+            pylab.show()
+        
+
+        print("plot the thing")
+
+if write_to_json:
+        print("writing jsonfile")
+        import json
+        with open('./calcmeanap/ground_truth_boxes_animals_test.json', 'w') as fp:
+            json.dump(gt_dict, fp)
+        with open('./calcmeanap/predicted_boxes_animals_test.json', 'w') as fp:
+            json.dump(pred_dict, fp)            

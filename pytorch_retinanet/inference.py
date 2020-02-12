@@ -28,24 +28,29 @@ from tqdm import trange
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import utils
-
+from utils import change_box_order
 
 #booleans
-visualize = True
+visualize = False
 savePredictions = False
 appendConfidences = False
+write_to_json = True
 
 #other stuff
 imageSize = (4000,3000)
 shardsize = (600,600)
 stride = 1
 batchSize = 1
-minConfidence = 0.1
-nms_iou = 0.5
+minConfidence = 0.2
+nms_iou = 0.2
 colors = [(1.0, 0.0, 0.0), (0.0, 0.0, 1.0)]
-checkpoint = "60m_10"
+#checkpoint = "30m60m_ckpt_4_"
 #data_root = 
 #save_dir = "../../output/output_images/" + checkpoint
+
+#jsons
+gt_dict = {}
+pred_dict = {}
 
 # Data
 print('==> Preparing data..')
@@ -56,17 +61,31 @@ transform = transforms.Compose([
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def inference(dataSet, model):
+def inference(dataSet, model, dataLoader):
     # setup
     model.eval()
     
     # iterate
     order = np.random.permutation(len(dataSet))
+    order = range(len(dataSet)-1)
+    
     tBar = trange(len(order))
+
+    count = 0
     for idx in order:
-        img, imgPath = dataSet.__getitem2__(idx)
-        print(img, imgPath)
-        tensor = transform(img).to(device)
+    #for idx, (img, loc_targets, cls_targets, imgPath) in enumerate(dataLoader):
+        # count += 1
+        # if count == 10:
+        #     break
+        
+        img, loc_targets, cls_targets, imgPath = dataSet.__getitem__(idx)
+        #img, imgPath = dataSet.__getitem2__(idx)
+        
+        print("imgpath: ", imgPath)
+        print("targets: ", loc_targets)
+        
+        #loc_targets = torch.squeeze(loc_targets,dim = 0) # weird output though, so maybe something is wrong with the image order
+        tensor = img.to(device) #datagen __getitem__ already transforms
 
         # evaluate in patches (and batches)
         bboxes = torch.empty(size=(0,4,), dtype=torch.float32)
@@ -74,7 +93,7 @@ def inference(dataSet, model):
         confs = torch.empty(size=(0, model.num_classes,), dtype=torch.float32) # model.numClasses throws error: RetinaNet object has not attribute 'numClasses'. used 2 instead
         scores = torch.empty(size=(0,), dtype=torch.float32)
         
-        gridX, gridY = tensorSharding.createSplitLocations_auto(img.size, shardsize, tight=True) # changed all this to stuff into what it is in TensorSharding.py
+        gridX, gridY = tensorSharding.createSplitLocations_auto(imageSize, shardsize, tight=True) # changed all this to stuff into what it is in TensorSharding.py
         tensors = tensorSharding.splitTensor(tensor, shardsize, gridX, gridY)
         gridX = torch.from_numpy(gridX)
         gridY = torch.from_numpy(gridY)
@@ -112,21 +131,48 @@ def inference(dataSet, model):
                 labels = torch.cat((labels, labels_pred_img), dim=0)
                 confs = torch.cat((confs, confs_pred_img), dim=0)
                 scores = torch.cat((scores, scores_pred_img), dim=0)
+                
         # do NMS on entire set
         keep = utils.box_nms(bboxes, scores, threshold= nms_iou)
         bboxes = bboxes[keep,:]  
+        print("all predicted boxes: ", bboxes)
+        
         labels = labels[keep]
+        #print("labels: ",labels)
         confs = confs[keep,:]
         scores = scores[keep]
+        print("scores:  ", scores)
         # update progress bar
         #tBar.set_description_str('# Pred: {}'.format(bboxes.size(0)))
         #tBar.update(1)
         # visualize
+
+        if write_to_json:
+            #ground_truth_boxes
+            gt_dict[imgPath[-12:]] = loc_targets.tolist()
+
+            #predicted_boxes
+            tempdict = {}
+            tempdict["boxes"] = bboxes.tolist()
+            tempdict["scores"] = scores.tolist()
+            pred_dict[imgPath[-12:]] = tempdict
+
+
         if visualize:  # and len(bboxes):
             plt.figure(1)
             plt.clf()
+            img = dataSet.__getitem2__(idx)
             plt.imshow(img)
             ax = plt.gca()
+            for c in range(loc_targets.size(0)):
+                ax.add_patch(
+                    Rectangle(
+                        (loc_targets[c,0], loc_targets[c,1],),
+                        loc_targets[c,2]-loc_targets[c,0], loc_targets[c,3]-loc_targets[c,1],
+                        fill=False,
+                        ec=colors[0]
+                    )
+                )
             for b in range(bboxes.size(0)):
                 ax.add_patch(
                     Rectangle(
@@ -164,3 +210,12 @@ def inference(dataSet, model):
                         outFile.write(' ' + ' '.join([str(c.item()) for c in confs[b,:]]))
                     outFile.write('\n')
     tBar.close()
+
+
+    if write_to_json:
+        print("writing jsonfile")
+        import json
+        with open('./calcmeanap/ground_truth_boxes_animals.json', 'w') as fp:
+            json.dump(gt_dict, fp)
+        with open('./calcmeanap/predicted_boxes_animals.json', 'w') as fp:
+            json.dump(pred_dict, fp)            

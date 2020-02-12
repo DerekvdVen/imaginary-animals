@@ -4,8 +4,12 @@ import random
 
 import torch
 import torchvision.transforms as transforms
+import cv2
+import skimage.filters
+import PIL
 
-from PIL import Image, ImageDraw
+
+from PIL import Image, ImageDraw, ImageFilter
 
 
 def resize(img, boxes, size, max_size=1000):
@@ -56,6 +60,10 @@ def random_crop(img, boxes):
       boxes: (tensor) randomly cropped boxes.
     '''
     success = False
+
+    img_orig = img
+    boxes_orig = boxes
+
     for _ in range(10):
         area = img.size[0] * img.size[1]
         target_area = random.uniform(0.56, 1.0) * area
@@ -84,7 +92,37 @@ def random_crop(img, boxes):
         boxes -= torch.Tensor([x,y,x,y])
         boxes[:,0::2].clamp_(min=0, max=w-1)
         boxes[:,1::2].clamp_(min=0, max=h-1)
+    
+    # WRITE CODE TO NOT CROP IF THE BOXES GO OUT OF THE IMAGE
+    #print(boxes)
+    #print(boxes_orig)
+    for box, obox in zip(boxes, boxes_orig):
+        #print(box)
+        #print(box.data[0].item())
+        #print(box.data[1].item())
+        
+        length = abs(box.data[0].item() - box.data[2].item())
+        height = abs(box.data[1].item() - box.data[3].item())
+        olength = abs(obox.data[0].item() - obox.data[2].item())
+        oheight = abs(obox.data[1].item() - obox.data[3].item())
+        
+        if length == 0 or height == 0:
+            print("somtehing is zero:", length, height)
+            return img_orig, boxes_orig
+        else:
+            ratio = round(length/height,2)
+            oratio = round(olength/oheight,2)
+            if ratio != oratio:    
+                print("old length height ratio:", olength/oheight)
+                print("new length height ratio:", length/height)
+                return img_orig, boxes_orig
+
     return img, boxes
+
+def blur(img):
+    if random.randint(0,100) < 50:
+        img = img.filter(ImageFilter.GaussianBlur(radius = 1))
+    return(img)
 
 def center_crop(img, boxes, size):
     '''Crops the given PIL Image at the center.

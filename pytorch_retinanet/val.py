@@ -22,8 +22,8 @@ from encoder import DataEncoder
 
 from inference import inference
 
-checkpoint_name = "60m_ckpt10"
-dist = "60m/"
+checkpoint_name = "30m60m_ckpt_7"
+dist = "30m60m/"
 batchsize = 1
 val_loss_list = []
 
@@ -71,9 +71,5 @@ criterion = FocalLoss()
 optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
 
 print("inference")
-inference(valset, net)
+inference(valset, net, valloader)
 
-with open("../../output/graph_lists/" + checkpoint_name + "/val.txt","w") as file:
-    for item in val_loss_list:
-        file.write(str(item))
-        file.write("\n")
