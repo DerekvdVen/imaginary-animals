@@ -14,6 +14,8 @@ NOTE: Requires the files `ground_truth_boxes.json` and `predicted_boxes.json` wh
 downloaded fromt this gist.
 """
 
+
+
 from __future__ import absolute_import, division, print_function
 
 from copy import deepcopy
@@ -29,6 +31,8 @@ import seaborn as sns
 
 sns.set_style('white')
 sns.set_context('poster')
+infile_gt = "ground_truth_boxes_animals_test.json"
+infile_pred = "predicted_boxes_animals_test.json"
 
 COLORS = [
     '#1f77b4', '#aec7e8', '#ff7f0e', '#ffbb78', '#2ca02c',
@@ -295,10 +299,10 @@ def plot_pr_curve(
 
 if __name__ == "__main__":
 
-    with open('ground_truth_boxes_animals.json') as infile:
+    with open(infile_gt) as infile: #ground_truth_boxes_animals.json
         gt_boxes = json.load(infile)
 
-    with open('predicted_boxes_animals.json') as infile:
+    with open(infile_pred) as infile: #predicted_boxes_animals.json
         pred_boxes = json.load(infile)
 
     # Runs it for one IoU threshold

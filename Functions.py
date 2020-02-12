@@ -118,7 +118,7 @@ def check_for_animals(animals):
     labeled_test, nr_objects_test = mh.label(animals)
     return(nr_objects_test)
 
-def count_animals(animals_smooth,minimal_size,image_kernel,plot):
+def count_animals(animals_smooth,minimal_size,image_kernel,plot,removeborder):
        
         
     # count_animals thresholds the smoothed gaussian blobs and then labels and counts them. Also makes plots to show the animals.
@@ -160,8 +160,10 @@ def count_animals(animals_smooth,minimal_size,image_kernel,plot):
             pylab.show()
 
         # remove blobs touching the border
-        print("without border blobs")
-        labeled = mh.labeled.remove_bordering(labeled)
+        if removeborder == True:
+            print("without border blobs")
+            labeled = mh.labeled.remove_bordering(labeled)
+
         if plot == True:
             pylab.imshow(labeled)
             pylab.jet()
