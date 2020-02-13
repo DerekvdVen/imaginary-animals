@@ -14,7 +14,7 @@ import re
 import statistics as st
 from PIL import Image, ImageDraw
 import pylab
-
+import argparse
 
 # Import functions
 from Functions import create_dirs, check_sky, mask_seg, count_animals, smooth_animals, plot_image, get_centers_through_borders, get_bboxes, write_file, remove_bad_images
@@ -26,6 +26,15 @@ sigma = 2
 minimum_animal_size = 25
 kernel = (7,7)
 width = height = 512
+
+parser = argparse.ArgumentParser(description='Creating annotations')
+parser.add_argument('-ea', action='store_true', help='save empty animal images to files')
+args = parser.parse_args()
+
+save_empty_images_bool = args.ea
+print("args: ",args)
+import time
+time.sleep(2)
 
 plotbool = False
 rembordbool = False
@@ -77,8 +86,9 @@ def main(label_loc,input_location,input_location_s):
             
             if nr_objects == 0:
                 print("Zero animals in this picture, not adding file information to labels file", "\n")
-                file.write(image_name)
-                file.write("\n")
+                if save_empty_images_bool == True:
+                    file.write(image_name)
+                    file.write("\n")
                 continue
 
             # Get centers of animals using boundaries

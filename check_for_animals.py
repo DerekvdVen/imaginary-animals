@@ -20,9 +20,9 @@ from Functions import create_dirs, check_sky, mask_seg, check_for_animals, count
 parser = argparse.ArgumentParser(description='check_for_animals')
 parser.add_argument('-dir', default="30m", type=str, help='directory named after distance: 30m, 60m, 3060m')
 args = parser.parse_args()
-print(args)
+print("args: ",args)
 dir = args.dir
-print(dir)
+
 
 # 60m: minimum animal size = 20?
 

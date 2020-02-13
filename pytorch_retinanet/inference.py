@@ -41,6 +41,7 @@ imageSize = (4000,3000)
 shardsize = (600,600)
 stride = 1
 batchSize = 1
+
 minConfidence = 0.2
 nms_iou = 0.2
 colors = [(1.0, 0.0, 0.0), (0.0, 0.0, 1.0)]
@@ -61,7 +62,7 @@ transform = transforms.Compose([
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-def inference(dataSet, model, dataLoader):
+def inference(dataSet, model, dataLoader,output_json,minConfidence=0.2,nms_iou=0.2):
     # setup
     model.eval()
     
@@ -218,4 +219,11 @@ def inference(dataSet, model, dataLoader):
         with open('./calcmeanap/ground_truth_boxes_animals.json', 'w') as fp:
             json.dump(gt_dict, fp)
         with open('./calcmeanap/predicted_boxes_animals.json', 'w') as fp:
-            json.dump(pred_dict, fp)            
+            json.dump(pred_dict, fp)    
+    if write_to_json:
+        print("writing jsonfile")
+        import json
+        with open('./calcmeanap/' + output_json + '_gt_real.json', 'w') as fp:
+            json.dump(gt_dict, fp)
+        with open('./calcmeanap/' + output_json + '_pred_real.json', 'w') as fp:
+            json.dump(pred_dict, fp)                    

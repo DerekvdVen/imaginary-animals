@@ -15,19 +15,19 @@ from matplotlib.patches import Rectangle
 import argparse
 #imports
 
-parser = argparse.ArgumentParser(description='PyTorch RetinaNet Training')
+parser = argparse.ArgumentParser(description='Testing on rendered images')
 parser.add_argument('-n', default="test1", type=str, help='checkpoint name')
-parser.add_argument('-mc', default=0.2, type=float, help='minConfidence')
-parser.add_argument('-nms_iou', default=0.2, type=float, help='nms iou')
-
+parser.add_argument('-mc', default=0.4, type=float, help='minConfidence')
+parser.add_argument('-nms_iou', default=0.4, type=float, help='nms iou')
 args = parser.parse_args()
+print("args: ",args)
 
-checkpoint = "30m_ckpt_1"
+checkpoint = args.n
 write_to_json = True
 visualize = False
 colors = [(1.0, 0.0, 0.0), (0.0, 0.0, 1.0)]
-minConfidence = 0.2
-nms_iou = 0.5
+minConfidence = args.mc
+nms_iou = args.nms_iou
 
 #jsons
 gt_dict = {}
@@ -170,7 +170,7 @@ with open("../../Data/labels/val.txt") as annotations_file: # this will be where
 if write_to_json:
         print("writing jsonfile")
         import json
-        with open('./calcmeanap/ground_truth_boxes_animals_test.json', 'w') as fp:
+        with open('./calcmeanap/' + args.n + '_gt_rendered.json', 'w') as fp:
             json.dump(gt_dict, fp)
-        with open('./calcmeanap/predicted_boxes_animals_test.json', 'w') as fp:
+        with open('./calcmeanap/' + args.n + '_pred_rendered.json', 'w') as fp:
             json.dump(pred_dict, fp)            

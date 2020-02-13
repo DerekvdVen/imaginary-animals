@@ -22,15 +22,25 @@ from encoder import DataEncoder
 
 from inference import inference
 
-checkpoint_name = "30m60m_ckpt_7"
-dist = "30m60m/"
+#checkpoint_name = "30m60m_ckpt_7"
+#dist = "30m60m/"
 batchsize = 1
 val_loss_list = []
 
-parser = argparse.ArgumentParser(description='PyTorch RetinaNet Training')
+parser = argparse.ArgumentParser(description='Testing on real images')
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
+parser.add_argument('-n', default="test1", type=str, help='checkpoint name')
+parser.add_argument('-mc', default=0.2, type=float, help='minConfidence')
+parser.add_argument('-nms_iou', default=0.2, type=float, help='nms iou')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 args = parser.parse_args()
+print("args: ",args)
+
+checkpoint_name = args.n
+output_json = args.n 
+minConfidence = args.mc
+nms_iou = args.nms_iou
+
 
 assert torch.cuda.is_available(), 'Error: CUDA not found!'
 
@@ -68,8 +78,8 @@ if args.resume:
 net.cuda()
 
 criterion = FocalLoss()
-optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
+optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4) # what does this do here? nothing right? 
 
 print("inference")
-inference(valset, net, valloader)
+inference(valset, net, valloader, output_json = output_json, minConfidence = minConfidence,nms_iou = nms_iou)
 

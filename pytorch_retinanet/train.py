@@ -38,6 +38,7 @@ parser.add_argument('-ne', default=10,type=int,help='number of epochs')
 parser.add_argument('-dir', default="30m",type=str,help='distance directory of images')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 args = parser.parse_args()
+print("args: ", args)
 
 #parameters: 
 batchsize = args.bs
