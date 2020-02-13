@@ -1,21 +1,17 @@
 #!/bin/bash
 
 ##### make array of every input: so dir_array = "-dir 30m" "-dir 60m" "-dir 6030m" #####
-dir = "-dir 30m"
-run_name = "-n test1"
-lr = "--lr 1e-5"
-bs = "-bs 4"
-ne = "-ne 10"
-mc = "-mc 0.2"
-iou = "-nms_iou 0.2"
+run_name = "-n test1"       # name of run
+dir = "-dir 30m"            # data directory
 
-# dir_array=(30m 60m 60m30m)
+ea = "-ea"                  # save empty animals to train val test list.txts
 
-# for x in 0 1 2 
-# do
-# echo ${dir_array[$x]}
-# python check_for_animals ${dir_array[$x]}
-# done
+lr = "--lr 1e-5"            # learning rate
+bs = "-bs 4"                # batch size
+ne = "-ne 1"                # number of epochs
+
+mc = "-mc 0.2"              # minimum confidence for predicting
+iou = "-nms_iou 0.2"        # non maximal supression iou
 
 # check for animals takes images from Data/all/60m|30m and moves the animal images into Data/only_animal_images/all/60m|30m
 echo check all images for animals
@@ -27,12 +23,17 @@ python split_train_test.py $dir
 
 # takes input from Data/semantic|images/60|30m/ and creates annotations in a train.txt and test.txt file 
 echo run main.py with train/test distributions
-python main.py 
+python main.py $ea
 
-# runs the CNN with data from Data/all/60|30m and annotations from train.txt and test.txt
-echo training retinanet
+# # runs the CNN with data from Data/all/60|30m and annotations from train.txt and test.txt
+# echo training retinanet
 cd pytorch_retinanet
-python train.py $run_name $lr $bs $ne $dir
+# python train.py $run_name $lr $bs $ne $dir
 
 # check model output with test.py or val.py
+echo testing on rendered images
 python test.py $run_name $mc $iou
+
+# python val.py 
+echo testing on real images
+python val.py $run_name $mc $iou -r
