@@ -8,13 +8,13 @@ ea_array=(ea ea ea)                       # save empty animals to train val test
 
 lr_array=(1e-5 1e-5 1e-5)                   # learning rate
 bs_array=(4 4 4)                            # batch size
-ne_array=(5 5 5)                            # number of epochs
+ne_array=(10 10 10)                            # number of epochs
 
 mc_array=(0.2 0.2 0.2)                      # minimum confidence for predicting 
 iou_array=(0.2 0.2 0.2)                     # non maximal supression iou
 
 
-for x in 0 1 2 
+for x in 0 1 2
 do
 run_name_x="-n ${run_name_array[$x]}"
 dir_x="-dir ${dir_array[$x]}"
@@ -25,7 +25,7 @@ ne_x="-ne ${ne_array[$x]}"
 mc_x="-mc ${mc_array[$x]}"
 iou_x="-nms_iou ${iou_array[$x]}"
 
-# # check for animals takes images from Data/all/60m|30m and moves the animal images into Data/only_animal_images/all/60m|30m
+# check for animals takes images from Data/all/60m|30m and moves the animal images into Data/only_animal_images/all/60m|30m
 echo check all images for animals
 python check_for_animals.py $dir_x
 
@@ -35,16 +35,16 @@ python split_train_test.py $dir_x
 
 # # takes input from Data/semantic|images/60|30m/ and creates annotations in a train.txt and test.txt file 
 echo run main.py with train/test distributions
-python main.py $ea_x
+python main.py $run_name_x $ea_x
 
-# runs the CNN with data from Data/all/60|30m and annotations from train.txt and test.txt
-echo training retinanet
-cd pytorch_retinanet
-python train.py $run_name_x $lr_x $bs_x $ne_x $dir_x
+# # runs the CNN with data from Data/all/60|30m and annotations from train.txt and test.txt
+# echo training retinanet
+# cd pytorch_retinanet
+# python train.py $run_name_x $lr_x $bs_x $ne_x $dir_x
 
-# check model output with test.py or val.py
-python test.py $run_name_x $mc_x $iou_x
+# # check model output with test.py or val.py
+# python test.py $run_name_x $mc_x $iou_x
 
-# do the same for val.py 
-python val.py $run_name_x $mc_x $iou_x -r
+# # do the same for val.py 
+# python val.py $run_name_x $mc_x $iou_x -r
 done
