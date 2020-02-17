@@ -24,17 +24,17 @@ from Functions import create_dirs, check_sky, mask_seg, count_animals, smooth_an
 # Set parameters
 sigma = 2
 minimum_animal_size = 25
-kernel = (7,7)
+kernel = (5,5) # 7,7 is too big
 width = height = 512
 
 parser = argparse.ArgumentParser(description='Creating annotations')
+parser.add_argument('-n', default="test1", type=str, help='run name')
 parser.add_argument('-ea', action='store_true', help='save empty animal images to files')
 args = parser.parse_args()
 
+name = args.n
 save_empty_images_bool = args.ea
 print("args: ",args)
-import time
-time.sleep(2)
 
 plotbool = False
 rembordbool = False
@@ -127,9 +127,9 @@ def main(label_loc,input_location,input_location_s):
     # Deletes images that have innapropriate compositions in them
     remove_bad_images(bad_image_list,input_location,input_location_s)
 
-main("../Data/labels/train_all.txt", input_location_train, input_location_s_train)
-main("../Data/labels/test_all.txt", input_location_test, input_location_s_test)
-main("../Data/labels/val_all.txt", input_location_val, input_location_s_val)
+main("../Data/labels/train_" + name + ".txt", input_location_train, input_location_s_train)
+main("../Data/labels/test_" + name + ".txt", input_location_test, input_location_s_test)
+main("../Data/labels/val_" + name + ".txt", input_location_val, input_location_s_val)
 
 
 
