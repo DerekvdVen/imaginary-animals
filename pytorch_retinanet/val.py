@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
+from torch.autograd import Variable
 
 import torchvision
 import torchvision.transforms as transforms
@@ -15,11 +16,7 @@ import torchvision.transforms as transforms
 from loss import FocalLoss
 from retinanet import RetinaNet
 from datagen import ListDataset_val
-
-from torch.autograd import Variable
-
 from encoder import DataEncoder 
-
 from inference import inference
 
 #checkpoint_name = "30m60m_ckpt_7"
@@ -27,6 +24,7 @@ from inference import inference
 batchsize = 1
 val_loss_list = []
 
+# parser for parsing arguments giving in command line file or terminal
 parser = argparse.ArgumentParser(description='Testing on real images')
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
 parser.add_argument('-n', default="test1", type=str, help='checkpoint name')
