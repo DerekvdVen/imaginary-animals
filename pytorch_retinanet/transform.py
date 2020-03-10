@@ -107,7 +107,7 @@ def random_crop(img, boxes):
         oheight = abs(obox.data[1].item() - obox.data[3].item())
         
         if length == 0 or height == 0:
-            print("somtehing is zero:", length, height)
+            #print("somtehing is zero:", length, height)
             return img_orig, boxes_orig
         else:
             ratio = round(length/height,2)

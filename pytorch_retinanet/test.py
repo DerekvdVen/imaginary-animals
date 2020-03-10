@@ -1,24 +1,29 @@
+
+# imports
+
+import os
+import argparse
+
 import torch
 import torchvision.transforms as transforms
 
-from torch.autograd import Variable
-
 from retinanet import RetinaNet
 from encoder import DataEncoder
-from PIL import Image, ImageDraw
-from Kuzikus_bigImageValidation import evalOnBigTensor
-import os
+
 import utils
+from Kuzikus_bigImageValidation import evalOnBigTensor
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-import argparse
-#imports
 
+from matplotlib.patches import Rectangle
+from PIL import Image, ImageDraw
+from torch.autograd import Variable
+
+# parser for parsing arguments giving in command line file or terminal
 parser = argparse.ArgumentParser(description='Testing on rendered images')
 parser.add_argument('-n', default="test1", type=str, help='checkpoint name')
-parser.add_argument('-mc', default=0.4, type=float, help='minConfidence')
-parser.add_argument('-nms_iou', default=0.4, type=float, help='nms iou')
+parser.add_argument('-mc', default=0.2, type=float, help='minConfidence')
+parser.add_argument('-nms_iou', default=0.2, type=float, help='nms iou')
 args = parser.parse_args()
 print("args: ",args)
 
@@ -52,16 +57,30 @@ transform = transforms.Compose([
 
 
 
-dir = '../../Data/images/val/' # this will be where the val images are
-size = w = h = 600
-origsize = 512
-print('Loading image..')
+
+
+# these are for rendered results
+# dir = '../../Data/images/val/' # this will be where the val images are
+# val_loc = "../../Data/labels/val_" + checkpoint + '.txt'
+# size = w = h = 600
+# origsize = origw = origh = 512
+# changeboxtypebool = False
+
+# these are for doing a quick check of the rendered train model on anther val set without splicing and stuff
+dir = "../../Data/kuzikus_patches_800x600/images/"
+val_loc = "../../Data/kuzikus_patches_800x600/labels/val.txt" # test on smaller things
+w = 600
+h = 600
+origw = 800
+origh = 600
+changeboxtypebool = True
+
 count = 0
-with open("../../Data/labels/val.txt") as annotations_file: # this will be where the val.txt file is. 
+with open(val_loc) as annotations_file: # this will be where the val.txt file is. 
     for line in annotations_file:
-        # count = count+1
-        # if count > 30:
-        #     break
+        count = count+1
+        if count > 300:
+            break
 
         line_list = line.strip().split(' ')
         img_x = line_list[0]
@@ -73,11 +92,46 @@ with open("../../Data/labels/val.txt") as annotations_file: # this will be where
 
         # recast loc_targets to the new size image
         for i in range(0,len(boxesdata),5):
-            loc_targets.append([round(float(j)/origsize*size,4) for j in boxesdata[i:i+4]])
+
+            #for square image
+            #loc_targets.append([round(float(j)/origsize*size,4) for j in boxesdata[i:i+4]])
+            centerx = float(boxesdata[i])
+            print("centerx: ",centerx)
+            centery = float(boxesdata[i+1])
+            boxwidth = float(boxesdata[i+2])
+            print("boxwidth", boxwidth)
+            boxheight = float(boxesdata[i+3])
+            
+            if changeboxtypebool == True:
+                box1 = centerx - boxwidth/2
+                box2 = centery - boxheight/2
+                box3 = centerx + boxwidth/2
+                box4 = centery + boxheight/2
+                if box1 < 0:
+                    box1 = 0
+                if box2 < 0:
+                    box2 = 0
+                if box3 > origw:
+                    box3 = origw
+                if box4 > origh:
+                    box4 = origh
+            else:
+                box1 = float(boxesdata[i])
+                box2 = float(boxesdata[i+1])
+                box3 = float(boxesdata[i+2])
+                box4 = float(boxesdata[i+3])
+            
+            box = []
+            box.append(round(float(box1)/origw*w,4))
+            box.append(round(float(box2)/origh*h,4))
+            box.append(round(float(box3)/origw*w,4))
+            box.append(round(float(box4)/origh*h,4))
+            print("boxes after change: ", box)
+            loc_targets.append(box)
             cls_targets.append(int(boxesdata[i+4]))
 
         print("loctargets: ", loc_targets)
-        print("clstargets: ", cls_targets)
+        #print("clstargets: ", cls_targets)
         print(img_x)
 
         image = Image.open(dir + img_x).convert('RGB')
@@ -109,7 +163,8 @@ with open("../../Data/labels/val.txt") as annotations_file: # this will be where
             scores = torch.cat((scores, scores_pred_img), dim=0)
         
         # perform nms
-        
+        print("before nms iou boxes: ", bboxes)
+        print("before nms iou confs: ", confs)
         keep = utils.box_nms(bboxes, scores, threshold= nms_iou)
         bboxes = bboxes[keep,:]  
         labels = labels[keep]
@@ -117,8 +172,8 @@ with open("../../Data/labels/val.txt") as annotations_file: # this will be where
         scores = scores[keep]
 
         # calculate statistics from these predicted boxes and labels, and the ground truth boxes and labels
-        print("boxes: ", bboxes)
-        print("scores: ",scores)
+        print("predicted boxes: ", bboxes)
+        print("predicted scores: ",scores)
         print("labels: ",labels)
 
         if write_to_json:
@@ -132,7 +187,7 @@ with open("../../Data/labels/val.txt") as annotations_file: # this will be where
             tempdict["scores"] = scores.tolist()
             pred_dict[img_x] = tempdict
 
-        if visualize:  # and len(bboxes):
+        if visualize and len(bboxes):
             plt.figure(1)
             plt.clf()
             plt.imshow(image)
@@ -170,7 +225,7 @@ with open("../../Data/labels/val.txt") as annotations_file: # this will be where
 if write_to_json:
         print("writing jsonfile")
         import json
-        with open('./calcmeanap/' + args.n + '_gt_rendered.json', 'w') as fp:
+        with open('./calcmeanap/' + args.n + '_' + str(args.mc) + '_gt_rendered.json', 'w') as fp:
             json.dump(gt_dict, fp)
-        with open('./calcmeanap/' + args.n + '_pred_rendered.json', 'w') as fp:
+        with open('./calcmeanap/' + args.n + '_' + str(args.mc) +'_pred_rendered.json', 'w') as fp:
             json.dump(pred_dict, fp)            

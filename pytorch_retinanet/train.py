@@ -2,6 +2,7 @@ from __future__ import print_function
 
 import os
 import argparse
+import numpy as np
 
 from comet_ml import Experiment
 
@@ -21,21 +22,21 @@ from datagen import ListDataset
 from torch.autograd import Variable
 from torchsummary import summary
 
-import numpy as np
-
-dist = "30m/"
+#dist = "30m/"
 #blur = 1
 #bordersfixed
 #crop works better
 # ALSO TRAINING ON NO ANIMAL IMAGES
 
-# command line arguments
+# parser for parsing arguments giving in command line file or terminal
 parser = argparse.ArgumentParser(description='PyTorch RetinaNet Training')
-parser.add_argument('-n', default="test1", type=str, help='run name')
+parser.add_argument('-n', default="real_image_model", type=str, help='run name') # set default to 20304060m
 parser.add_argument('--lr', default=1e-5, type=float, help='learning rate')
 parser.add_argument('-bs', default=2, type=int, help='batchsize')
-parser.add_argument('-ne', default=10,type=int,help='number of epochs')
-parser.add_argument('-dir', default="30m",type=str,help='distance directory of images')
+parser.add_argument('-ne', default=80,type=int,help='number of epochs') # set default to lets say 5 epochs
+parser.add_argument('-dir', default="2346m",type=str,help='distance directory of images')
+parser.add_argument('-ea', action='store_true', help='save empty animal images to files')
+parser.add_argument('-ni', default='', type=str, help='number of images to put in train_x for finetuning') 
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')
 args = parser.parse_args()
 print("args: ", args)
@@ -44,17 +45,26 @@ print("args: ", args)
 batchsize = args.bs
 n_epochs = args.ne
 checkpoint_name = args.n
+name = "20304060m" #args.n
 dist = args.dir
+ni = args.ni
+
 train_loss_list = []
 test_loss_list = []
-
-
+test_loss_rendered_list = []
 
 # set comet info
 experiment = Experiment(api_key = "dWZFGTbFA4MerKRqXNpWjLh07", project_name = "general", workspace = "derekvdven",display_summary = False)
 experiment.set_name(checkpoint_name)
 
 assert torch.cuda.is_available(), 'Error: CUDA not found!'
+print("torchk:", torch.cuda.device_count())
+
+#torch.cuda.set_device(1)
+
+print("current:, ",torch.cuda.current_device())  # output: 0
+print("name: ", torch.cuda.get_device_name(1))
+
 best_loss = float('inf')  # best test loss
 start_epoch = 0  # start from epoch 0 or last epoch
 
@@ -65,20 +75,33 @@ transform = transforms.Compose([
     transforms.Normalize((0.485,0.456,0.406), (0.229,0.224,0.225)) # from imagenet set
 ])
 
-# derek
-trainset = ListDataset(root='../../Data/images/all/' + dist + '/',
-                        list_file='../../Data/labels/train_all.txt', train=True, transform=transform, input_size=600)
+
+
+############################### this is training and testing on rendered
+
+# trainset = ListDataset(root='../../Data/images/all/' + dist + '/',
+#                         list_file='../../Data/labels/train_' + name + ".txt", train=True, transform=transform, input_size=600)
+# trainloader = torch.utils.data.DataLoader(trainset, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=trainset.collate_fn)
+
+testset_rendered = ListDataset(root='../../Data/images/all/' + dist + '/',
+                        list_file='../../Data/labels/test_' + name + '_short.txt', train=False, transform=transform, input_size=600)
+testloader_rendered = torch.utils.data.DataLoader(testset_rendered, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=testset_rendered.collate_fn)
+
+
+################################ this is training and testing on real images
+
+trainset = ListDataset(root='../../Data/kuzikus_patches_800x600/images/',
+                        list_file='../../Data/kuzikus_patches_800x600/labels/train' + ni + '.txt', train=True, transform=transform, input_size=600)
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=trainset.collate_fn)
 
-testset = ListDataset(root='../../Data/images/all/' + dist + '/',
-                        list_file='../../Data/labels/test_all.txt', train=False, transform=transform, input_size=600)
+testset = ListDataset(root='../../Data/kuzikus_patches_800x600/images/',
+                        list_file='../../Data/kuzikus_patches_800x600/labels/test_short.txt', train=False, transform=transform, input_size=600)
 testloader = torch.utils.data.DataLoader(testset, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=testset.collate_fn)
+
 
 
 # Model
 net = RetinaNet(num_classes=2)
-#net.load_state_dict(torch.load('./model/net.pth')) #(net.pth is trained with 20 classes so I cannot load it and use it..)
-#print(net)
 
 ordered_state_dict = torch.load("./model/net.pth")
 
@@ -102,7 +125,9 @@ if args.resume:
     checkpoint = torch.load('./checkpoint/'+ checkpoint_name + ".pth")
     net.load_state_dict(checkpoint['net'])
     best_loss = checkpoint['loss']
+    best_loss = 100
     start_epoch = checkpoint['epoch']
+
 
 net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
 net.cuda()
@@ -154,10 +179,12 @@ def test(epoch):
         print('test_loss: %.3f | avg_loss: %.3f' % (loss.data.item(), avg_loss))
     test_loss_list.append(avg_loss)    
     experiment.log_metric("test_loss", avg_loss)
-
+    
     # Save checkpoint
     global best_loss
     test_loss /= len(testloader)
+    print("test_loss ",test_loss)
+    print("best_loss ",best_loss)
     if test_loss < best_loss:
         print('Saving..')
         state = {
@@ -170,18 +197,43 @@ def test(epoch):
         torch.save(state, './checkpoint/' + checkpoint_name + ".pth")
         best_loss = test_loss
 
+# Test on rendered
+def test_rendered(epoch):
+    print('\nTest_rendered')
+    net.eval()
+    test_loss_rendered = 0
+    for batch_idx, (inputs, loc_targets, cls_targets) in enumerate(testloader_rendered):
+        inputs = Variable(inputs.cuda(), requires_grad=False)
+        loc_targets = Variable(loc_targets.cuda())
+        cls_targets = Variable(cls_targets.cuda())
+
+        loc_preds, cls_preds = net(inputs)
+        loss = criterion(loc_preds, loc_targets, cls_preds, cls_targets)
+        test_loss_rendered += loss.data.item()
+        avg_loss = test_loss_rendered/(batch_idx + 1)
+        print('test_loss_rendered: %.3f | avg_loss: %.3f' % (loss.data.item(), avg_loss))
+    test_loss_rendered_list.append(avg_loss)    
+    experiment.log_metric("test_loss_rendered", avg_loss)
+
 
 for epoch in range(start_epoch, start_epoch + n_epochs):
     train(epoch)
     
     test(epoch)
 
-# with open("../../output/graph_lists/" + checkpoint_name + "/train.txt","w") as file:
-#     for item in train_loss_list:
-#         file.write(str(item))
-#         file.write("\n")
+    test_rendered(epoch)
 
-# with open("../../output/graph_lists/" + checkpoint_name + "/test.txt","w") as file:
-#     for item in test_loss_list:
-#         file.write(str(item))
-#         file.write("\n")
+with open("../../output/graph_lists/" + checkpoint_name + "_train_losses.txt","w") as file:
+    for item in train_loss_list:
+        file.write(str(item))
+        file.write("\n")
+
+with open("../../output/graph_lists/" + checkpoint_name + "_test_losses.txt","w") as file:
+    for item in test_loss_list:
+        file.write(str(item))
+        file.write("\n")
+
+with open("../../output/graph_lists/" + checkpoint_name + "_test_rendered_losses.txt","w") as file:
+    for item in test_loss_rendered_list:
+        file.write(str(item))
+        file.write("\n")

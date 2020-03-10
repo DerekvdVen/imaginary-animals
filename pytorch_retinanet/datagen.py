@@ -191,15 +191,26 @@ class ListDataset(data.Dataset):
         labels = self.labels[idx]
         size = self.input_size
 
-        # draw = ImageDraw.Draw(img)
+        #print("boxes: ", boxes)
+        #print("boxessize: ",len(boxes.size()))
+        if len(boxes.size()) > 1:
 
-        # for box in boxes:
-        #     draw.rectangle(list(box), outline='red')
-        # img.show()
-        # import pylab
-        # pylab.imshow(img)
-        # pylab.show()
+
+            # set for training on real: 
+            #print("before",boxes)
+            boxes = change_box_order(boxes,'xywh2xyxy')
+            #print("after", boxes)
+            # draw = ImageDraw.Draw(img)
+
+            # for box in boxes:
+            #     draw.rectangle(list(box), outline='red')
+            # img.show()
+            # import pylab
+            # pylab.imshow(img)
+            # pylab.show()
+            
         
+
         # Data augmentation
         if self.train:
             img, boxes = random_flip(img, boxes)
