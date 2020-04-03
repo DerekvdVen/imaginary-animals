@@ -24,7 +24,7 @@ from Functions import create_dirs, check_sky, mask_seg, count_animals, smooth_an
 # Set parameters
 sigma = 2
 minimum_animal_size = 25
-kernel = (5,5) # 7,7 is too big
+kernel = (3,3) # 7,7 is too big
 width = height = 512
 
 parser = argparse.ArgumentParser(description='Creating annotations')
