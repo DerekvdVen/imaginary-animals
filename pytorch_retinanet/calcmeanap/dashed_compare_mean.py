@@ -38,27 +38,19 @@ COLORS = [
     '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
     '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
     '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
-
-COLORS = ["#a6cee3"
-,"#1f78b4"
-,"#b2df8a"
-,"#33a02c"
-,"#fb9a99"
-,"#e31a1c"
-,"#fdbf6f"
-,"#ff7f00"
-,"#cab2d6"
+COLORS = [
+"#8c510a","#bf812d",
+"#01665e","#35978f",
+"#c51b7d","#de77ae",
+"#4d9221","#7fbc41"
 ]
 
 ## Derek ##
 if __name__ == "__main__":
 
     #comparing new annotatioin scheme
-    modelrun_list = ["20304060m_z_full_0.1","23456z_full_0.1","23456z_end_full_0.1","23456z2_full_0.1","23456z3_full_0.1","real_image_model_z_full_0.1"]
-    modelrun_list = ["20304060m_z_full_0.1","23456z3_looksgood_full_0.1","real_image_model_z_full_0.1"]
-    #rendered
-
-
+    #modelrun_list = ["20304060m_z_full_0.1","23456z_full_0.1","real_image_model_z_full_0.1"]
+    
     #new finetuning
     #modelrun_list = ["20304060m_250f_full_0.1","20304060m_500f_full_0.1","20304060m_1000f_full_0.1"]#,"20304060m_2000z_full_0.1","20304060m_4000z_full_0.1"]
     #modelrun_list = ["20304060m_250z_full_0.1","20304060m_250f_full_0.1"]
@@ -73,8 +65,15 @@ if __name__ == "__main__":
     #modelrun_list = ["20304060m_2000z_full_0.1","20304060m_2000e_full_0.1"]
     #modelrun_list = ["20304060m_4000z_full_0.1","20304060m_4000e_full_0.1"] 
     #modelrun_list = ["20304060m_250z_full_0.1","20304060m_500z_full_0.1","20304060m_1000z_full_0.1","20304060m_2000z_full_0.1"]#,"20304060m_4000z_full_0.1"]
-    modelrun_list = ["23456z3_looksgood_full_0.1","20304060m_250e_full_0.1","20304060m_500e_full_0.1","20304060m_1000e_full_0.1","20304060m_2000e_full_0.1"]#,"20304060m_4000e_full_0.1"]
+    modelrun_list = ["20304060m_250e_full_0.1","20304060m_500e_full_0.1","20304060m_1000e_full_0.1","20304060m_2000e_full_0.1"]#,"20304060m_4000e_full_0.1"]
+    modelrun_list = ["20304060m_250e_full_0.1","20304060m_250z_full_0.1",
+                        "20304060m_500e_full_0.1","20304060m_500z_full_0.1",
+                            "20304060m_1000e_full_0.1","20304060m_1000z_full_0.1",
+                                "20304060m_2000e_full_0.1","20304060m_2000z_full_0.1"]#,"20304060m_4000e_full_0.1"]
     
+    
+
+
     # mixed training
     #modelrun_list = ["20304060m_z_full_0.1","20304060m_250z_full_0.1","20304060m_500z_full_0.1","20304060m_1000z_full_0.1","20304060m_2000z_full_0.1","20304060m_4000z_full_0.1","real_image_model_z_full_0.1"]
     
@@ -115,9 +114,13 @@ if __name__ == "__main__":
 
         precisions = data['precisions']
         recalls = data['recalls']
-        ax = plot_pr_curve(
-            precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx], ax=ax,title= "iou = " + str(iou_thr))
-    
+
+        if idx%2 == 0: 
+            ax = plot_pr_curve(
+                precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx], ax=ax,title= "iou = " + str(iou_thr))
+        else:
+            ax = plot_pr_curve(
+                precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[(idx)], ax=ax,title= "iou = " + str(iou_thr),line_style=":",alpha = 0.95,thic=1.5)
     for xval in np.linspace(0.0, 1.2, 13):
         plt.vlines(xval, 0.0, 1.2, color='gray', alpha=0.3, linestyles='dashed')
     plt.legend(labels = modelrun_list,loc='upper right', title='Model run', frameon=True,prop={"size":10})

@@ -39,8 +39,8 @@ parser.add_argument('-n', default="test1", type=str, help='run name')
 args = parser.parse_args()
 print(args)
 
-infile_gt = args.n + '_gt_rendered.json' # change this to choose rendered or real
-infile_pred = args.n + '_pred_rendered.json'
+infile_gt = args.n + '_gt.json' # change this to choose rendered or real
+infile_pred = args.n + '_pred.json'
 
 print("infile_gt: ", infile_gt)
 print("infile_pred: ", infile_pred)
@@ -54,7 +54,16 @@ COLORS = [
     '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
     '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
 
-
+COLORS = ["#e41a1c",
+"#377eb8",
+"#4daf4a",
+"#984ea3",
+"#ff7f00",
+"#f781bf",
+"#a65628",
+"#ffff33",
+"#999999"
+]
 
 if __name__ == "__main__":
 
@@ -84,7 +93,7 @@ if __name__ == "__main__":
         precisions = data['precisions']
         recalls = data['recalls']
         ax = plot_pr_curve(
-            precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx*2], ax=ax,title=args.n)
+            precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx], ax=ax,title=args.n)
 
     # prettify for printing:
     avg_precs = [float('{:.4f}'.format(ap)) for ap in avg_precs]
@@ -97,6 +106,6 @@ if __name__ == "__main__":
         plt.vlines(xval, 0.0, 1.1, color='gray', alpha=0.3, linestyles='dashed')
     end_time = time.time()
     print('\nPlotting and calculating mAP takes {:.4f} secs'.format(end_time - start_time))
-    plt.savefig("output/test1.png")
+    plt.savefig("output/"+ args.n + ".png")
     plt.show()
 

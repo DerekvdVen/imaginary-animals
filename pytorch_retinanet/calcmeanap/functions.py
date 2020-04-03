@@ -269,7 +269,7 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
 
 
 def plot_pr_curve(
-    precisions, recalls, category='Person', label=None, color=None, ax=None,title=''):
+    precisions, recalls, category='Person', label=None, color=None, ax=None,title='',line_style=None,alpha=1,thic = 2):
     """Simple plotting helper function"""
 
     if ax is None:
@@ -278,11 +278,11 @@ def plot_pr_curve(
 
     if color is None:
         color = COLORS[0]
-    ax.plot(recalls, precisions, label=label, color=color,alpha = 0.7,lw=2)#, s=20
-    ax.scatter(recalls, precisions, label=label, color=color,s=5,alpha = 0.7)#, 
+    ax.plot(recalls, precisions, label=label, color=color,alpha = alpha,lw=thic,linestyle = line_style)#, s=20
+    #ax.scatter(recalls, precisions, label=label, color=color,s=5,alpha = 0.7)#, 
     ax.set_xlabel('recall')
     ax.set_ylabel('precision')
     ax.set_title('Precision-Recall curve for ' + title)               #{}'.format(category))
-    ax.set_xlim([0.0,1.05])
+    ax.set_xlim([0.0,0.85])
     ax.set_ylim([0.0,1.05])
     return ax
