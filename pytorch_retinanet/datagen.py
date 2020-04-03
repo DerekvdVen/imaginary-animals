@@ -194,11 +194,12 @@ class ListDataset(data.Dataset):
         #print("boxes: ", boxes)
         #print("boxessize: ",len(boxes.size()))
         if len(boxes.size()) > 1:
-
+            print("fname",fname)
 
             # set for training on real: 
             #print("before",boxes)
-            boxes = change_box_order(boxes,'xywh2xyxy')
+            if fname.find(",") == -1:
+                boxes = change_box_order(boxes,'xywh2xyxy')
             #print("after", boxes)
             # draw = ImageDraw.Draw(img)
 
@@ -213,12 +214,15 @@ class ListDataset(data.Dataset):
 
         # Data augmentation
         if self.train:
+            #print("before resize: ", boxes)
             img, boxes = random_flip(img, boxes)
             #print("img before: ", boxes)
             img, boxes = random_crop(img, boxes)
             #print("img after: ", boxes)
             img = blur(img)
             img, boxes = resize(img, boxes, (size,size))
+            #print("after resize: ", boxes)
+            
         else:
             img, boxes = resize(img, boxes, size)
             img, boxes = center_crop(img, boxes, (size,size))
@@ -226,16 +230,7 @@ class ListDataset(data.Dataset):
         # TODo: visualise image and bounding boxes and check, it should be left top right bottom
         # add 30 meter renderings to the training and test dataset
         
-        # draw = ImageDraw.Draw(img)
-
-        # print(boxes)
-        # for box in boxes:
-        #     draw.rectangle(list(box), outline='red')
-        # img.show()
-        # import pylab
-        # pylab.imshow(img)
-        # pylab.show()
-    
+        
         
         img = self.transform(img)
         return img, boxes, labels

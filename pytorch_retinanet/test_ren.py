@@ -23,7 +23,7 @@ from torch.autograd import Variable
 parser = argparse.ArgumentParser(description='Testing on rendered images')
 parser.add_argument('-n', default="20304060m", type=str, help='checkpoint name')
 parser.add_argument('-mc', default=0.1, type=float, help='minConfidence')
-parser.add_argument('-nms_iou', default=0.1, type=float, help='nms iou')
+parser.add_argument('-nms_iou', default=0.2, type=float, help='nms iou')
 args = parser.parse_args()
 print("args: ",args)
 
@@ -39,8 +39,8 @@ nms_iou = args.nms_iou
 gt_dict = {}
 pred_dict = {}
 
-if save_plots and not os.path.exists("../../output/output_images/" + args.n + "_" + str(minConfidence)):
-    os.mkdir("../../output/output_images/" + args.n + "_" + str(minConfidence))
+if save_plots and not os.path.exists("../../output/output_images/" + args.n + "ren"):
+    os.mkdir("../../output/output_images/" + args.n + "ren")
 #dir = "/mnt/guanabana/raid/data/datasets/Kuzikus/SAVMAP/data/raster/ebee/2014-05/20140515_11_rgb/img/"
 #outdir = '../../output/output_images/' + checkpoint
 #dir = "../../Data/real/"
@@ -64,22 +64,22 @@ transform = transforms.Compose([
 
 # these are for rendered results
 
-# dir = '../../Data/images/val/' # this will be where the val images are
-# val_loc = "../../Data/labels/val_" + checkpoint + '.txt'
-# size = w = h = 600
-# origsize = origw = origh = 512
-# changeboxtypebool = False
+dir = '../../Data/images/testval/' # this will be where the val images are
+val_loc = "../../Data/labels/valtest_short_20304060m.txt" #+ checkpoint + '.txt'
+size = w = h = 600
+origsize = origw = origh = 512
+changeboxtypebool = False
 ############################################################
 
 # these are for doing a quick check of the rendered train model on anther val set without splicing and stuff
 
-dir = "../../Data/kuzikus_patches_800x600/images/"
-val_loc = "../../Data/kuzikus_patches_800x600/labels/val.txt" # test on smaller things
-w = 600
-h = 600
-origw = 800
-origh = 600
-changeboxtypebool = True
+# dir = "../../Data/kuzikus_patches_800x600/images/"
+# val_loc = "../../Data/kuzikus_patches_800x600/labels/val.txt" # test on smaller things
+# w = 600
+# h = 600
+# origw = 800
+# origh = 600
+# changeboxtypebool = True
 ############################################################
 
 count = 0
@@ -103,10 +103,10 @@ with open(val_loc) as annotations_file: # this will be where the val.txt file is
             #for square image
             #loc_targets.append([round(float(j)/origsize*size,4) for j in boxesdata[i:i+4]])
             centerx = float(boxesdata[i])
-            #print("centerx: ",centerx)
+            print("centerx: ",centerx)
             centery = float(boxesdata[i+1])
             boxwidth = float(boxesdata[i+2])
-            #print("boxwidth", boxwidth)
+            print("boxwidth", boxwidth)
             boxheight = float(boxesdata[i+3])
             
             if changeboxtypebool == True:
@@ -133,18 +133,18 @@ with open(val_loc) as annotations_file: # this will be where the val.txt file is
             box.append(round(float(box2)/origh*h,4))
             box.append(round(float(box3)/origw*w,4))
             box.append(round(float(box4)/origh*h,4))
-            #print("boxes after change: ", box)
+            print("boxes after change: ", box)
             loc_targets.append(box)
             cls_targets.append(int(boxesdata[i+4]))
 
-        #print("loctargets: ", loc_targets)
+        print("loctargets: ", loc_targets)
         #print("clstargets: ", cls_targets)
         print(img_x)
 
         image = Image.open(dir + img_x).convert('RGB')
         image = image.resize((w,h))
         
-        #print('Predicting..')
+        print('Predicting..')
         x = transform(image)
         x = x.unsqueeze(0)
         x = Variable(x, requires_grad = False)
@@ -170,9 +170,8 @@ with open(val_loc) as annotations_file: # this will be where the val.txt file is
             scores = torch.cat((scores, scores_pred_img), dim=0)
         
         # perform nms
-        if len(bboxes):
-            print("before nms iou boxes: ", bboxes)
-            print("before nms iou confs: ", confs)
+        print("before nms iou boxes: ", bboxes)
+        print("before nms iou confs: ", confs)
         keep = utils.box_nms(bboxes, scores, threshold= nms_iou)
         bboxes = bboxes[keep,:]  
         labels = labels[keep]
@@ -180,10 +179,9 @@ with open(val_loc) as annotations_file: # this will be where the val.txt file is
         scores = scores[keep]
 
         # calculate statistics from these predicted boxes and labels, and the ground truth boxes and labels
-        if len(loc_targets):
-            print("predicted boxes: ", bboxes)
-            print("predicted scores: ",scores)
-            print("labels: ",labels)
+        print("predicted boxes: ", bboxes)
+        print("predicted scores: ",scores)
+        print("labels: ",labels)
 
         if write_to_json:
 
@@ -196,7 +194,7 @@ with open(val_loc) as annotations_file: # this will be where the val.txt file is
             tempdict["scores"] = scores.tolist()
             pred_dict[img_x] = tempdict
 
-        if visualize and len(loc_targets):
+        if visualize and len(bboxes):
             plt.figure(1)
             plt.clf()
             plt.imshow(image)
@@ -228,40 +226,41 @@ with open(val_loc) as annotations_file: # this will be where the val.txt file is
             pylab.imshow(image)
             pylab.show()
         
-        if save_plots and len(loc_targets):
-            plt.figure(1)
-            plt.clf()
-            plt.imshow(image)
-            plt.axis('off')
-            ax = plt.gca()
-            for c in range(len(loc_targets)):
-                ax.add_patch(
-                    Rectangle(
-                        (loc_targets[c][0], loc_targets[c][1],),
-                        loc_targets[c][2]-loc_targets[c][0], loc_targets[c][3]-loc_targets[c][1],
-                        fill=False,
-                        ec=colors[0]
+        if save_plots and len(bboxes):
+            if len(boxes_pred_img):
+                plt.figure(1)
+                plt.clf()
+                plt.imshow(image)
+                plt.axis('off')
+                ax = plt.gca()
+                for c in range(len(loc_targets)):
+                    ax.add_patch(
+                        Rectangle(
+                            (loc_targets[c][0], loc_targets[c][1],),
+                            loc_targets[c][2]-loc_targets[c][0], loc_targets[c][3]-loc_targets[c][1],
+                            fill=False,
+                            ec=colors[0]
+                        )
                     )
-                )
-            for b in range(bboxes.size(0)):
-                ax.add_patch(
-                    Rectangle(
-                        (bboxes[b,0], bboxes[b,1],),
-                        bboxes[b,2]-bboxes[b,0], bboxes[b,3]-bboxes[b,1],
-                        fill=False,
-                        ec=colors[labels[b]]
+                for b in range(bboxes.size(0)):
+                    ax.add_patch(
+                        Rectangle(
+                            (bboxes[b,0], bboxes[b,1],),
+                            bboxes[b,2]-bboxes[b,0], bboxes[b,3]-bboxes[b,1],
+                            fill=False,
+                            ec=colors[labels[b]]
+                        )
                     )
-                )
-                plt.text(bboxes[b,0], bboxes[b,1], '{:.2f}'.format(scores[b]))
-            #plt.title('[{}/{}] {}'.format(idx, len(dataSet), imgPath))
-            plt.draw()
-            plt.savefig("../../output/output_images/"+ args.n + "_" + str(minConfidence) + "/" + img_x.replace("/","-"),bbox_inches = 'tight',pad_inches=0)
-        #print("plot the thing")
+                    plt.text(bboxes[b,0], bboxes[b,1], '{:.2f}'.format(scores[b]))
+                #plt.title('[{}/{}] {}'.format(idx, len(dataSet), imgPath))
+                plt.draw()
+                plt.savefig("../../output/output_images/"+ args.n + "ren/" + img_x.replace("/","-"),bbox_inches = 'tight',pad_inches=0)
+        print("plot the thing")
 
 if write_to_json:
         print("writing jsonfile")
         import json
-        with open('./calcmeanap/' + args.n + '_full_' + str(args.mc) + '_gt.json', 'w') as fp:
+        with open('./calcmeanap/' + args.n + '_ren_' + str(args.mc) + '_gt.json', 'w') as fp:
             json.dump(gt_dict, fp)
-        with open('./calcmeanap/' + args.n + '_full_' + str(args.mc) +'_pred.json', 'w') as fp:
+        with open('./calcmeanap/' + args.n + '_ren_' + str(args.mc) +'_pred.json', 'w') as fp:
             json.dump(pred_dict, fp)            

@@ -60,9 +60,9 @@ def random_crop(img, boxes):
       boxes: (tensor) randomly cropped boxes.
     '''
     success = False
-
-    img_orig = img
-    boxes_orig = boxes
+    from copy import deepcopy
+    img_orig = deepcopy(img)
+    boxes_orig = deepcopy(boxes)
 
     for _ in range(10):
         area = img.size[0] * img.size[1]
@@ -93,6 +93,16 @@ def random_crop(img, boxes):
         boxes[:,0::2].clamp_(min=0, max=w-1)
         boxes[:,1::2].clamp_(min=0, max=h-1)
     
+    # if len(boxes.size()) > 1:
+    #     draw2 = ImageDraw.Draw(img)
+
+    #     for box in boxes:
+    #         draw2.rectangle(list(box), outline='red')
+    #     img.show()
+    #     import pylab
+    #     pylab.imshow(img)
+    #     pylab.show()
+
     # WRITE CODE TO NOT CROP IF THE BOXES GO OUT OF THE IMAGE
     #print(boxes)
     #print(boxes_orig)
@@ -105,17 +115,44 @@ def random_crop(img, boxes):
         height = abs(box.data[1].item() - box.data[3].item())
         olength = abs(obox.data[0].item() - obox.data[2].item())
         oheight = abs(obox.data[1].item() - obox.data[3].item())
-        
-        if length == 0 or height == 0:
-            #print("somtehing is zero:", length, height)
+        # print(length)
+        # print(height)
+        # print(olength)
+        # print(oheight)
+        if length < 5 or height < 5:
+            print("box is too slim")
+            
+            # draw2 = ImageDraw.Draw(img_orig)
+
+            # for box1 in boxes_orig:
+            #     draw2.rectangle(list(box1), outline='red')
+            # img_orig.show()
+            # import pylab
+            # pylab.imshow(img_orig)
+            # pylab.show()
             return img_orig, boxes_orig
-        else:
-            ratio = round(length/height,2)
-            oratio = round(olength/oheight,2)
-            if ratio != oratio:    
-                print("old length height ratio:", olength/oheight)
-                print("new length height ratio:", length/height)
-                return img_orig, boxes_orig
+        elif box.data[2].item() < 10 or box.data[1].item() < 10 or box.data[0].item() > img.size[0]-10 or box.data[3].item() > img.size[1]-10:
+            print("box is too close too border")
+            # if len(boxes_orig.size()) > 1:
+            #     draw2 = ImageDraw.Draw(img_orig)
+
+            #     for box1 in boxes_orig:
+            #         draw2.rectangle(list(box1), outline='red')
+            #     img_orig.show()
+            #     import pylab
+            #     pylab.imshow(img_orig)
+            #     pylab.show()
+            # box.data[2].item() < 5
+            # box.data[1].item() < 5
+            # box.data[0].item() > img.size[0]
+            # box.data[3].item() > img.size[1]
+            
+            # ratio = round(length/height,2)
+            # oratio = round(olength/oheight,2)
+            # if ratio != oratio:    
+            #     print("old length height ratio:", olength/oheight)
+            #     print("new length height ratio:", length/height)
+            return img_orig, boxes_orig
 
     return img, boxes
 

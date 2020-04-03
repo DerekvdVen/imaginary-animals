@@ -5,6 +5,8 @@ n_test = 1500
 n_val = 1500
 width = 800
 height = 600
+
+cc = 0
 with open("../../Data/kuzikus_patches_800x600/labels/00_SPLIT.txt","r") as f:
     with open("../../Data/kuzikus_patches_800x600/labels/train.txt","w") as train:
         with open("../../Data/kuzikus_patches_800x600/labels/test.txt","w") as test:
@@ -47,6 +49,3 @@ with open("../../Data/kuzikus_patches_800x600/labels/00_SPLIT.txt","r") as f:
                             test.write(img_name + '\n')
                         if (n_train + n_test + 1) < x < (n_train + n_test + n_val + 1):
                             val.write(img_name + '\n')
-
-
-
