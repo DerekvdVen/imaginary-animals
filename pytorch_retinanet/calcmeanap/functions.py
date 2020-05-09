@@ -208,7 +208,7 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
     """
     model_scores_map = get_model_scores_map(pred_boxes)
     sorted_model_scores = sorted(model_scores_map.keys())
-
+    
     # Sort the predicted boxes in descending order (lowest scoring boxes first):
     for img_id in pred_boxes.keys():
         arg_sort = np.argsort(pred_boxes[img_id]['scores'])
@@ -221,12 +221,17 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
     recalls = []
     model_thrs = []
     img_results = {}
+
     # Loop over model score thresholds and calculate precision, recall
     for ithr, model_score_thr in enumerate(sorted_model_scores[:-1]):
         # On first iteration, define img_results for the first time:
         img_ids = gt_boxes.keys() if ithr == 0 else model_scores_map[model_score_thr]
+
+        # 
         for img_id in img_ids:
+            # gets ground truth boxes for one image
             gt_boxes_img = gt_boxes[img_id]
+            # save the scores of all boxes for that image
             box_scores = pred_boxes_pruned[img_id]['scores']
             start_idx = 0
             for score in box_scores:
@@ -243,11 +248,18 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
             # Recalculate image results for this image
             img_results[img_id] = get_single_image_results(
                 gt_boxes_img, pred_boxes_pruned[img_id]['boxes'], iou_thr)
-
+            
         prec, rec = calc_precision_recall(img_results)
         precisions.append(prec)
         recalls.append(rec)
         model_thrs.append(model_score_thr)
+
+        #img_results is a dict with every image and how many tp fp fn are in there
+        
+    # img_results_tp = {}
+    # for img_id in pred_boxes.keys():
+    #     img_results_tp[img_id] = get_single_image_results(gt_boxes[img_id],pred_boxes[img_id]['boxes'],iou_thr)
+    # calc_stats(img_results_tp)
 
     precisions = np.array(precisions)
     recalls = np.array(recalls)
@@ -265,11 +277,17 @@ def get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=0.5):
         'avg_prec': avg_prec,
         'precisions': precisions,
         'recalls': recalls,
-        'model_thrs': model_thrs}
+        'model_thrs': model_thrs
+        }
 
+def calctps(gt_boxes, pred_boxes, iou_thr=0.5):
+    img_results_tp = {}
+    for img_id in pred_boxes.keys():
+        img_results_tp[img_id] = get_single_image_results(gt_boxes[img_id],pred_boxes[img_id]['boxes'],iou_thr)
+    calc_stats(img_results_tp)
 
 def plot_pr_curve(
-    precisions, recalls, category='Person', label=None, color=None, ax=None,title='',line_style=None,alpha=1,thic = 2):
+    precisions, recalls, category='Person', label=None, color=None, ax=None,title='',line_style=None,alpha=1,thic = 2,marker=0):
     """Simple plotting helper function"""
 
     if ax is None:
@@ -278,11 +296,48 @@ def plot_pr_curve(
 
     if color is None:
         color = COLORS[0]
-    ax.plot(recalls, precisions, label=label, color=color,alpha = alpha,lw=thic,linestyle = line_style)#, s=20
+    ax.plot(recalls, precisions, label=label, color=color,alpha = alpha,lw=thic,linestyle = line_style,marker=marker,markevery=0.3)#, s=20
     #ax.scatter(recalls, precisions, label=label, color=color,s=5,alpha = 0.7)#, 
     ax.set_xlabel('recall')
     ax.set_ylabel('precision')
-    ax.set_title('Precision-Recall curve for ' + title)               #{}'.format(category))
-    ax.set_xlim([0.0,0.85])
+    ax.set_title(title)               #{}'.format(category))
+    ax.set_xlim([0.0,1.05])
     ax.set_ylim([0.0,1.05])
     return ax
+
+
+def calc_stats(img_results):
+    """Calculates precision and recall from the set of images
+
+    Args:
+        img_results (dict): dictionary formatted like:
+            {
+                'img_id1': {'true_pos': int, 'false_pos': int, 'false_neg': int},
+                'img_id2': ...
+                ...
+            }
+
+    Returns:
+        tuple: of floats of (precision, recall)
+    """
+    true_pos = 0; false_pos = 0; false_neg = 0
+    for _, res in img_results.items():
+        true_pos += res['true_pos']
+        false_pos += res['false_pos']
+        false_neg += res['false_neg']
+    
+    #send back sum of tp fp fn 
+    print("tp: ",true_pos)
+    print("fp: ",false_pos)
+    print("fn: ",false_neg)
+    try:
+        precision = true_pos/(true_pos+false_pos)
+        accuracy = true_pos/(true_pos+false_neg)
+        F = precision*accuracy/(precision+accuracy)
+        print("precision0: ", precision)
+        print("accuracy0: ", accuracy)
+        print("F: ",F)
+    except ZeroDivisionError:
+        print("error, divide by zero")
+        
+    return(true_pos,false_pos,false_neg)

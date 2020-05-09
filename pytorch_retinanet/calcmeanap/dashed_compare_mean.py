@@ -38,6 +38,7 @@ COLORS = [
     '#98df8a', '#d62728', '#ff9896', '#9467bd', '#c5b0d5',
     '#8c564b', '#c49c94', '#e377c2', '#f7b6d2', '#7f7f7f',
     '#c7c7c7', '#bcbd22', '#dbdb8d', '#17becf', '#9edae5']
+
 COLORS = [
 "#8c510a","#bf812d",
 "#01665e","#35978f",
@@ -45,6 +46,18 @@ COLORS = [
 "#4d9221","#7fbc41"
 ]
 
+COLORS = [
+"#cc4c02","#238b45",
+"#cc4c02","#238b45",
+"#cc4c02","#238b45",
+"#cc4c02","#238b45",
+"#cc4c02","#238b45",
+"#cc4c02","#238b45",
+"#cc4c02","#238b45"
+]
+
+THICNESS=[1,1,1.5,1.5,2.5,2.5,3,3]
+ALPHA = [0.85,0.85,0.9,0.9,0.95,0.95,1,1]
 ## Derek ##
 if __name__ == "__main__":
 
@@ -59,18 +72,24 @@ if __name__ == "__main__":
     
 
     #comparing mixed and real
-    #modelrun_list = ["20304060m_250z_full_0.1","20304060m_250e_full_0.1"]
-    #modelrun_list = ["20304060m_500z_full_0.1","20304060m_500e_full_0.1"]
-    #modelrun_list = ["20304060m_1000z_full_0.1","20304060m_1000e_full_0.1"]
-    #modelrun_list = ["20304060m_2000z_full_0.1","20304060m_2000e_full_0.1"]
-    #modelrun_list = ["20304060m_4000z_full_0.1","20304060m_4000e_full_0.1"] 
-    #modelrun_list = ["20304060m_250z_full_0.1","20304060m_500z_full_0.1","20304060m_1000z_full_0.1","20304060m_2000z_full_0.1"]#,"20304060m_4000z_full_0.1"]
-    modelrun_list = ["20304060m_250e_full_0.1","20304060m_500e_full_0.1","20304060m_1000e_full_0.1","20304060m_2000e_full_0.1"]#,"20304060m_4000e_full_0.1"]
-    modelrun_list = ["20304060m_250e_full_0.1","20304060m_250z_full_0.1",
-                        "20304060m_500e_full_0.1","20304060m_500z_full_0.1",
-                            "20304060m_1000e_full_0.1","20304060m_1000z_full_0.1",
-                                "20304060m_2000e_full_0.1","20304060m_2000z_full_0.1"]#,"20304060m_4000e_full_0.1"]
+    #modelrun_list = ["23456z3_250mix_full_0.1","20304060m_250e_full_0.1"]
+    #modelrun_list = ["23456z3_500mix_full_0.1","20304060m_500e_full_0.1"]
+    #modelrun_list = ["23456z3_1000mix_full_0.1","20304060m_1000e_full_0.1"]
+    modelrun_list = ["23456z3_2000mix_full_0.1","20304060m_2000e_full_0.1"]
+    #modelrun_list = ["23456z3__4000mix_full_0.1","20304060m_4000e_full_0.1"] 
+    #modelrun_list = ["23456z3_250mix_full_0.1","23456z3_500mix_full_0.1","23456z3_1000mix_full_0.1","23456z3_2000mix_full_0.1"]#,"20304060m_4000z_full_0.1"]
+    #modelrun_list = ["23456z3_looksgood_full_0.1","20304060m_250e_full_0.1","20304060m_500e_full_0.1","20304060m_1000e_full_0.1","20304060m_2000e_full_0.1"]#,"20304060m_4000e_full_0.1"]
     
+    # modelrun_list = ["20304060m_250e_full_0.1","23456z3_250mix_full_0.1",
+    #                     "20304060m_500e_full_0.1","23456z3_500mix_full_0.1",
+    #                         "20304060m_1000e_full_0.1","23456z3_1000mix_full_0.1",
+    #                             "20304060m_2000e_full_0.1","23456z3_2000mix_full_0.1"]#,"20304060m_4000e_full_0.1"]
+    
+    
+    modelrun_list = ["20304060m_250e_full_0.01","23456z3_250fin_full_0.01",
+                        "20304060m_500e_full_0.01","23456z3_500fin_full_0.01",
+                            "20304060m_1000e_full_0.01","23456z3_1000fin_full_0.01",
+                                "20304060m_2000e_full_0.01","23456z3_2000fin_full_0.01"]#,"20304060m_4000e_full_0.1"]
     
 
 
@@ -117,10 +136,10 @@ if __name__ == "__main__":
 
         if idx%2 == 0: 
             ax = plot_pr_curve(
-                precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx], ax=ax,title= "iou = " + str(iou_thr))
+                precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx], ax=ax,title= "iou = " + str(iou_thr),thic=THICNESS[idx],alpha = ALPHA[idx])
         else:
             ax = plot_pr_curve(
-                precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[(idx)], ax=ax,title= "iou = " + str(iou_thr),line_style=":",alpha = 0.95,thic=1.5)
+                precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx], ax=ax,title= "iou = " + str(iou_thr),line_style="-",alpha = ALPHA[idx],thic=THICNESS[idx])
     for xval in np.linspace(0.0, 1.2, 13):
         plt.vlines(xval, 0.0, 1.2, color='gray', alpha=0.3, linestyles='dashed')
     plt.legend(labels = modelrun_list,loc='upper right', title='Model run', frameon=True,prop={"size":10})

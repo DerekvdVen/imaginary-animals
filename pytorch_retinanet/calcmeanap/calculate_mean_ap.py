@@ -30,12 +30,13 @@ import pandas as pd
 import seaborn as sns
 import argparse
 
-from functions import calc_iou_individual, calc_precision_recall, get_single_image_results, get_model_scores_map, get_avg_precision_at_iou, plot_pr_curve
+from functions import calc_iou_individual, calc_precision_recall, get_single_image_results, get_model_scores_map, get_avg_precision_at_iou, plot_pr_curve, calctps
 
 sns.set_style('white')
 sns.set_context('poster')
 parser = argparse.ArgumentParser(description='PyTorch RetinaNet Training')
 parser.add_argument('-n', default="test1", type=str, help='run name')
+parser.add_argument('-c', default = "generic",type=str,help='colors for plot')
 args = parser.parse_args()
 print(args)
 
@@ -64,6 +65,80 @@ COLORS = ["#e41a1c",
 "#ffff33",
 "#999999"
 ]
+if args.c == "purple":
+    COLORS = [
+"#49006a",
+"#7a0177",
+"#ae017e",
+"#dd3497",
+"#f768a1",
+"#fa9fb5",
+"#fcc5c0",
+"#fde0dd",
+"#fff7f3"
+]
+
+if args.c == "red":
+    COLORS = [#red
+    "#67000d",
+    "#a50f15",
+    "#cb181d",
+    "#ef3b2c",
+    "#fb6a4a",
+    "#fc9272",
+    "#fcbba1",
+    "#fee0d2",
+    "#fff5f0"
+    ]
+
+if args.c == "green":
+    COLORS = [#green
+    "#00441b",
+    "#006d2c",
+    "#238b45",
+    "#41ab5d",
+    "#74c476",
+    "#a1d99b",
+    "#c7e9c0",
+    "#e5f5e0",
+    "#f7fcf5"
+    ]
+if args.c == "blue":
+    COLORS = [#blue
+    "#023858",
+    "#045a8d",
+    "#0570b0",
+    "#3690c0",
+    "#74a9cf",
+    "#a6bddb",
+    "#d0d1e6",
+    "#ece7f2",
+    "#fff7fb",
+    ]
+if args.c == "lb":
+    COLORS = [#lb
+    "#084081",
+    "#0868ac",
+    "#2b8cbe",
+    "#4eb3d3",
+    "#7bccc4",
+    "#a8ddb5",
+    "#ccebc5",
+    "#e0f3db",
+    "#f7fcf0"
+    ]
+if args.c == "brown":
+    COLORS = [#brown
+    "#662506",
+    "#993404",
+    "#cc4c02",
+    "#ec7014",
+    "#fe9929",
+    "#fec44f",
+    "#fee391",
+    "#fff7bc",
+    "#ffffe5"
+    ]
 
 if __name__ == "__main__":
 
@@ -81,11 +156,14 @@ if __name__ == "__main__":
     print('Single IoU calculation took {:.4f} secs'.format(end_time - start_time))
     print('avg precision: {:.4f}'.format(data['avg_prec']))
 
+
     start_time = time.time()
     ax = None
     avg_precs = []
     iou_thrs = []
     for idx, iou_thr in enumerate(np.linspace(0.1, 0.9, 9)):
+        print(iou_thr)
+        #calctps(gt_boxes, pred_boxes, iou_thr=iou_thr)
         data = get_avg_precision_at_iou(gt_boxes, pred_boxes, iou_thr=iou_thr)
         avg_precs.append(data['avg_prec'])
         iou_thrs.append(iou_thr)
@@ -93,7 +171,7 @@ if __name__ == "__main__":
         precisions = data['precisions']
         recalls = data['recalls']
         ax = plot_pr_curve(
-            precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx], ax=ax,title=args.n)
+            precisions, recalls, label='{:.2f}'.format(iou_thr), color=COLORS[idx], ax=ax,title='')
 
     # prettify for printing:
     avg_precs = [float('{:.4f}'.format(ap)) for ap in avg_precs]
@@ -107,5 +185,5 @@ if __name__ == "__main__":
     end_time = time.time()
     print('\nPlotting and calculating mAP takes {:.4f} secs'.format(end_time - start_time))
     plt.savefig("output/"+ args.n + ".png")
-    plt.show()
+    #plt.show()
 
