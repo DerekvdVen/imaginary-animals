@@ -23,14 +23,14 @@ from torch.autograd import Variable
 parser = argparse.ArgumentParser(description='Testing on rendered images')
 parser.add_argument('-n', default="20304060m", type=str, help='checkpoint name')
 parser.add_argument('-mc', default=0.1, type=float, help='minConfidence')
-parser.add_argument('-nms_iou', default=0.2, type=float, help='nms iou')
+parser.add_argument('-nms_iou', default=0.1, type=float, help='nms iou')
 args = parser.parse_args()
 print("args: ",args)
 
 checkpoint = args.n
 write_to_json = True
 visualize = False
-save_plots = True
+save_plots = False
 colors = [(1.0, 0.0, 0.0), (0.0, 0.0, 1.0)]
 minConfidence = args.mc
 nms_iou = args.nms_iou
@@ -65,7 +65,7 @@ transform = transforms.Compose([
 # these are for rendered results
 
 dir = '../../Data/images/testval/' # this will be where the val images are
-val_loc = "../../Data/labels/valtest_short_20304060m.txt" #+ checkpoint + '.txt'
+val_loc = "../../Data/labels/valtest_23456m_np.txt" #+ checkpoint + '.txt'
 size = w = h = 600
 origsize = origw = origh = 512
 changeboxtypebool = False
@@ -226,7 +226,7 @@ with open(val_loc) as annotations_file: # this will be where the val.txt file is
             pylab.imshow(image)
             pylab.show()
         
-        if save_plots and len(bboxes):
+        if save_plots and len(loc_targets):
             if len(boxes_pred_img):
                 plt.figure(1)
                 plt.clf()

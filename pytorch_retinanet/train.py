@@ -83,9 +83,9 @@ transform = transforms.Compose([
 
 ############################### this is training and testing on rendered
 
-trainset_ren = ListDataset(root='../../Data/images/all/' + dir + '/',
-                        list_file='../../Data/labels/train_' + name + ".txt", train=True, transform=transform, input_size=600)
-trainloader = torch.utils.data.DataLoader(trainset_ren, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=trainset_ren.collate_fn)
+# trainset_ren = ListDataset(root='../../Data/images/all/' + dir + '/',
+#                         list_file='../../Data/labels/train_' + name + ".txt", train=True, transform=transform, input_size=600)
+# trainloader = torch.utils.data.DataLoader(trainset_ren, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=trainset_ren.collate_fn)
 
 testset_rendered = ListDataset(root='../../Data/images/all/' + dir + '/',
                         list_file='../../Data/labels/test_' + testname + '_short.txt', train=False, transform=transform, input_size=600)
@@ -94,9 +94,9 @@ testloader_rendered = torch.utils.data.DataLoader(testset_rendered, batch_size=b
 
 ################################ this is training and testing on real images
 
-# trainset = ListDataset(root='../../Data/kuzikus_patches_800x600/images/',
-#                         list_file='../../Data/kuzikus_patches_800x600/labels/train' + ni + '.txt', train=True, transform=transform, input_size=600)
-# trainloader = torch.utils.data.DataLoader(trainset, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=trainset.collate_fn)
+trainset = ListDataset(root='../../Data/kuzikus_patches_800x600/images/',
+                        list_file='../../Data/kuzikus_patches_800x600/labels/train' + ni + '.txt', train=True, transform=transform, input_size=600)
+trainloader = torch.utils.data.DataLoader(trainset, batch_size=batchsize, shuffle=False, num_workers=1, collate_fn=trainset.collate_fn)
 
 testset = ListDataset(root='../../Data/kuzikus_patches_800x600/images/',
                         list_file='../../Data/kuzikus_patches_800x600/labels/test_short_new.txt', train=False, transform=transform, input_size=600)
@@ -140,6 +140,8 @@ if args.resume:
 
 
 net = torch.nn.DataParallel(net, device_ids=range(torch.cuda.device_count()))
+print("device")
+print(torch.cuda.device_count())
 net.cuda()
 
 #print("summary",summary(net,(3,512,512)))

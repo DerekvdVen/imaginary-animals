@@ -28,9 +28,9 @@ args = parser.parse_args()
 print("args: ",args)
 
 checkpoint = args.n
-write_to_json = True
-visualize = False
-save_plots = True
+write_to_json = False
+visualize = True
+save_plots = False
 colors = [(1.0, 0.0, 0.0), (0.0, 0.0, 1.0)]
 minConfidence = args.mc
 nms_iou = args.nms_iou
@@ -72,9 +72,9 @@ transform = transforms.Compose([
 ############################################################
 
 # these are for doing a quick check of the rendered train model on anther val set without splicing and stuff
-
+#val_animals.txt
 dir = "../../Data/kuzikus_patches_800x600/images/"
-val_loc = "../../Data/kuzikus_patches_800x600/labels/val.txt" # test on smaller things
+val_loc = "../../Data/kuzikus_patches_800x600/labels/val_animals.txt" # test on smaller things
 w = 600
 h = 600
 origw = 800
